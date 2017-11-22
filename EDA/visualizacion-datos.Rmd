@@ -1,0 +1,30 @@
+---
+title: "Visualización de datos en R"
+author: joseangeldiazg
+date: November 22, 2017
+output: html_document
+---
+
+# Ejercicio 1:
+
+## Dados los siguientes datos crea el grafico de distance contra strech 
+
+Vamos a crear el dataframe con los datos de prueba:
+
+```{r}
+strech<-c(46,54,48,50,44,42,52)
+distance<-c(148,182,173,166,109,141,166)
+data<-data.frame(strech,distance)
+```
+
+Visualizamos los datos creados:
+
+```{r}
+data
+```
+
+Creamos el gráfico 
+
+```{r}
+plot(data$strech, data$distance, main="Strechs vs Distance", xlab="Strech", ylab="Distance")
+```
