@@ -7,7 +7,7 @@ output: html_document
 
 # Ejercicio 1:
 
-## Dados los siguientes datos crea el grafico de distance contra strech 
+### Plot distance against stretch. 
 
 Vamos a crear el dataframe con los datos de prueba:
 
@@ -28,3 +28,51 @@ Creamos el gráfico
 ```{r}
 plot(data$strech, data$distance, main="Strechs vs Distance", xlab="Strech", ylab="Distance")
 ```
+
+
+# Ejercicio 2:
+
+### The table on the right have ten observations, taken during the years 1970-79, are on October snow cover for Eurasia (snow cover is in millions of square kilometers):
+ 
+* Plot snow.cover versus year:
+
+* Plot a histogram of the snow.cover values:
+
+
+Vamos a crear los datos, para ello procedemos como antes creando dos vectores y uniéndolos en un dataframe. 
+
+
+```{r}
+year<-c(1970,1971,1972,1973,1974,1975,1976,1977,1978,1979)
+snow.cover<-c(6.5,12.0,14.9,10.0,10.7,7.9,21.9,12.5,14.5,9.2)
+year.snow<-data.frame(year, snow.cover)
+```
+
+Mostramos el dataframe creado para ver si tenemos los daos como deseamos.
+
+```{r}
+year.snow
+```
+
+
+Pintamos el gráfico de **snow.cover** vs **year**, con lo que tendríamos hecho el primer apartado:
+
+```{r}
+plot( year.snow$year,year.snow$snow.cover, main="snow.cover vs year", xlab="year", ylab="snow.cover" )
+```
+
+El siguiente punto pasa por la elaboración de un histograma, para ello podemos usar **hist()**
+
+```{r}
+hist(snow.cover, main="Snow.Cover Histogram", xlab="Snow.Cover", breaks=10)
+```
+
+Vamos a probar con menos cortes:
+
+```{r}
+hist(snow.cover, main="Snow.Cover Histogram", xlab="Snow.Cover", breaks=5)
+```
+
+A mi juicio este nos ofrece mejores resultados ya que podemos ver que no hay ninguno entre 15 y 20, que el minimo está por encima de 5, y el máximo es <= que 25, ademas como que la mayor parte de los años el Snow.Cover ha estado situado entre 10 y 15.
+
+
