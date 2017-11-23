@@ -75,4 +75,67 @@ hist(snow.cover, main="Snow.Cover Histogram", xlab="Snow.Cover", breaks=5)
 
 A mi juicio este nos ofrece mejores resultados ya que podemos ver que no hay ninguno entre 15 y 20, que el minimo está por encima de 5, y el máximo es <= que 25, ademas como que la mayor parte de los años el Snow.Cover ha estado situado entre 10 y 15.
 
+# Ejercício 3
+
+### Given the data in NY.xls
+* (Optional)conver to F to oC and in to mm.
+* PlotYear vs Warmest Minimum Temperature
+* PlotYear vs Warmest Minimum Temperature and Coldest Minimum Temperature. Don’t forget to add a legend!
+
+El primer paso es cargar los datos para ello:
+
+```{r}
+library(readxl)
+NY <- read_excel("datasets/NY.xls")
+View(NY)
+```
+
+El primer paso es convertir F a Grados e in a mm, para ello primero creamos dos funciones que realizan lo deseado:
+
+
+```{r}
+ftoc<-function(gradosf)
+{
+  return ((gradosf-32)*(5/9))
+}
+
+intomm<-function(invalue)
+{
+  return (as.numeric(invalue)*25.4)
+}
+```
+
+
+Ahora usamos la función para cada columna que queremos cambiar:
+
+```{r}
+NY[2:8]<-apply(NY[2:8],2,ftoc)
+```
+
+Y por último cambiamos los elementos en in por mm:
+
+
+```{r}
+NY[9:12]<-apply(NY[9:12],2,intomm)
+
+ny.dataframe<-data.frame(NY)
+```
+
+
+Ahora pintamos el gráfico como hemos hecho en puntos anteriores:
+
+
+```{r}
+plot(ny.dataframe$Year, ny.dataframe$Warmest.Minimum.Temperature..F. , main="Warmest.Minimum.Temperature vs year", xlab="year", ylab="Warmest.Minimum.Temperature C" )
+```
+
+Por último pintamos el gráfico del punto 3 con Plot Year vs Warmest Minimum Temperature and Coldest Minimum Temperature
+
+ plot(iris$Sepal.Length, pch=16, iris$Petal.Length, col=iris$Species, main="PLOT", xlab="Sepal length", ylab="Petal length")
+• legend("topleft", legend=levels(ny.dataframe$Year), col=1:length(levels(ny.dataframe$Year)), pch=16)
+
+```{r}
+plot(ny.dataframe$Warmest.Minimum.Temperature..F., ny.dataframe$Coldest.Minimum.Temperature..F. , col=ny.dataframe$Year, main="Warmest.Minimum.Temperature vs Coldest.Minimum.Temperature", xlab="Warmest.Minimun.T", ylab = "Coldest.Minimum.T") 
+legend("topleft", legend=levels(ny.dataframe$Year), col=ny.dataframe$Year)
+```
 
