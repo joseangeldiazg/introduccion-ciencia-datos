@@ -131,11 +131,7 @@ plot(ny.dataframe$Year, ny.dataframe$Warmest.Minimum.Temperature..F. , main="War
 
 Por último pintamos el gráfico del punto 3 con Plot Year vs Warmest Minimum Temperature and Coldest Minimum Temperature
 
- plot(iris$Sepal.Length, pch=16, iris$Petal.Length, col=iris$Species, main="PLOT", xlab="Sepal length", ylab="Petal length")
-• legend("topleft", legend=levels(ny.dataframe$Year), col=1:length(levels(ny.dataframe$Year)), pch=16)
-
 ```{r}
 plot(ny.dataframe$Warmest.Minimum.Temperature..F., ny.dataframe$Coldest.Minimum.Temperature..F. , col=ny.dataframe$Year, main="Warmest.Minimum.Temperature vs Coldest.Minimum.Temperature", xlab="Warmest.Minimun.T", ylab = "Coldest.Minimum.T") 
-legend("topleft", legend=levels(ny.dataframe$Year), col=ny.dataframe$Year)
 ```
 
