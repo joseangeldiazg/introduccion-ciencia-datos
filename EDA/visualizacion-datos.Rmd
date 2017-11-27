@@ -132,6 +132,46 @@ plot(ny.dataframe$Year, ny.dataframe$Warmest.Minimum.Temperature..F. , main="War
 Por último pintamos el gráfico del punto 3 con Plot Year vs Warmest Minimum Temperature and Coldest Minimum Temperature
 
 ```{r}
+ny.dataframe$FactorYear<-as.factor(ny.dataframe$Year)
+
 plot(ny.dataframe$Warmest.Minimum.Temperature..F., ny.dataframe$Coldest.Minimum.Temperature..F. , col=ny.dataframe$Year, main="Warmest.Minimum.Temperature vs Coldest.Minimum.Temperature", xlab="Warmest.Minimun.T", ylab = "Coldest.Minimum.T") 
+legend("topleft", legend=levels(ny.dataframe$FactorYear), col=1:length(levels(ny.dataframe$FactorYear)), pch=16)
 ```
+
+Como podemos ver, el gráfico no aporta mucha información, por lo que vamos a reducir la dimensionalidad de nuestra variable para el año, creando una variable categórica por ejemplo para los cuartos de siglo, lo que por ejemplo sería útil para estudiar tendencias por ejemplo en la temperatura.
+
+
+
+```{r}
+obtieneSiglo<-function(year)
+{
+  year<-as.numeric(year)
+  print(year)
+  if(year >= 1900 && year<1925)
+  {
+    return("1º Cuarto Siglo XX")
+  }
+  else if (year >= 1925 && year<1950)
+  {
+     return("2º Cuarto Siglo XX")
+  }
+  else if (year >= 1950 && year<1975)
+  {
+    return("3º Cuarto Siglo XX")
+  }
+   else if (year >= 1975 && year<2000)
+  {
+    return("Final Siglo XX")
+   }
+  else
+  {
+      return("Siglo XXI")
+  }
+}
+
+
+ny.dataframe$CategoricYear<-obtieneSiglo(ny.dataframe$Year)
+```
+
+
 
