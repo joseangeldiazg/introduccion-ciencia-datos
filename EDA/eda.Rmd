@@ -1,0 +1,153 @@
+---
+title: "Exploratory Data Analysis in R"
+author: joseangeldiazg
+date: November 25, 2017
+output: html_document
+---
+
+# Ejemplo 1, hip dataset
+
+
+Descargate el  dataset hip con el siguiente commando 
+
+```{r}
+hip  <-read.table("http://astrostatistics.psu.edu/datasets/HIP_star.dat", header=T,fill=T)
+```
+
+* Una vez descargado comprueba la dimensión y los nombres de las columnas del dataset. ¿Qué dimensión tiene? ¿qué datos alberga?
+
+```{r}
+str(hip)
+```
+
+Con el comando **str** vemos la información solicitada concretamente 2719 observaciones con 9 características, además vemos el tipo de dato de cada característica. 
+
+
+* Muestra por pantalla la columna de la variable RA
+
+
+```{r}
+hip[,3]
+```
+
+
+* Calcula las tendencias centrales de todos los datos del dataset (mean, media) utilizando la function apply
+
+```{r}
+apply(hip,2,mean, na.rm=T)
+apply(hip,2,median, na.rm=T)
+```
+
+* Haz lo mismo para las medidas de dispersión mínimo y máximo. 
+
+```{r}
+apply(hip,2,min, na.rm=T)
+apply(hip,2,max, na.rm=T)
+```
+
+* ¿Sería posible hacerlo con un único comando? ¿Que hace la función range()
+
+Si que sería posible, para ello usaremos la función range que nos da el rango de valores comprendido para una determinada característica del dataset.  
+
+```{r}
+apply(hip,2,range, na.rm=T)
+```
+
+
+* Sin embargo las medidas más populares de dispersión son la varianza (var()), su desviación standard (sd()) y la desviación absoluta de la mediana o MAD. Calcula estas medidas para los valores de RA.
+
+```{r}
+apply(hip,2,var, na.rm=T)
+apply(hip,2,sd, na.rm=T)
+apply(hip,2,mad, na.rm=T)
+```
+
+* Imagina que quieres calcular dos de estos valores de una sola vez. ¿Te serviría este código?
+
+```{r}
+f = function(x) c(median(x), mad(x))  
+f(hip[,1])
+```
+
+Si que valdría y calcularía para la columna 1 la mediana y la desviación absoluta de la mediana. 
+
+* ¿Cuál sería el resultado de aplicar apply(hip,2,f)?
+
+El resultado de esta función sería aplicar para cada columna la mediana y la desviación absoluta de la mediana. 
+
+```{r}
+apply(hip,2,f)
+```
+
+
+Vamos a medir la dispersión de la muestra utilizando el concepto de cuartiles. El percentil 90 es aquel dato que excede en un 10% a todos los demás datos. El cuartil (quantile) es el mismo concento, solo que habla de proporciones en vez de porcentajes. De forma que el percentil 90 es lo mismo que el cuartil 0.90. La mediana “median” de un dataset es el valor más central, en otras palabras exactamente la mitad del dataset excede la mediana. 
+
+
+* Calcula el cuartil .10 y .50 para la columna RA del dataset hip. Sugerencia: quantile()
+
+```{r}
+quantile(hip$RA, probs = c(0.1, 0.5))
+```
+
+
+* Los cuantiles 0.25 y 0.75 se conocen como el  first quartile y el third quartile, respectivamente. Calcula los cuatro cuartiles para RA con un único comando.
+
+
+```{r}
+quantile(hip$RA, probs=c(0.25,0.5,0.75))
+```
+
+
+
+* Otra medida de dispersión es la diferencia entre el primer y el tercer cuartil conocida como rango intercuartil (IQR) Inter Quantile Range. ¿Obtienes ese valor con la función summary()?
+
+El valor como tal no es ofrecido por la función summary, pero si que obtenemos los valores necesarios para calcularlo. Si queremos tenerlo directamente debemos usar la funcion **IQR.**
+
+
+```{r}
+summary(hip$RA, na.rm=T)
+IQR(hip$RA)
+```
+
+
+Hasta ahora has ignorado la presencia de  valores perdidos NA. La función any() devuelve TRUE si se encuentra al menos un TRUE en el vector que damos como argumento. Su combinación con is.na es muy útil.
+
+* ¿Qué obtienes cuando ejecutas el siguiente comando? ¿Cómo lo interpretas?
+
+El siguiente comando, lo que hace es crear una función hasNA que nos dice si algun elemento de los datos que se le pasan como argumento es un *missing value*. Con la funcion apply, lo que hacemos es usarlo para cada columna del dataset hip y este nos devuelve que en la variable B.V, tenemos valores perdidos. 
+
+```{r}
+hasNA = function(x) any(is.na(x)) 
+apply(hip,2,hasNA)   
+```
+
+
+* Normalmente querríamos poder usar las funciones  sobre el resto de datos que no son NA: Para ello podemos utilizar la función na.omit. ¿Que ocurre cuando lo hacemos?. Usando apply calcula la media para hip y hip1. Intenta calcular la media de forma que solo cambie la de B.V cuando ignores los valores NA.
+
+* Obten una idea aproximada de tus datos mediante la creación de un boxplot del hip dataset
+
+
+```{r}
+boxplot(hip, main="HIP BOX PLOT", ylab="Value", xlab="Variable")
+```
+
+Vemos que el gráfico no es muy revelador esto es porque tenemos variables de rangos muy distintos, podemos normalizarlas para ver algo mejor la dispersion de los datos. De todas formas este gráfico ya nos aportaria información como que la variable HIP está muy por encima de  los valores de las demás que se encuentran en rangos similares en función a esta y que tenemos presencia de bastantes outliers en pmRA y pmDE.
+
+
+
+* Crea un scatterplot que te compare los valores de RA y DE. Representa los puntos con el símbolo ‘.’ Y que estos puntos sean de color rojo si DE excede de 0. Sugerencia ifelse()
+
+```{r}
+ggplot(hip, aes(x=hip$RA, y=hip$DE))+ geom_point(size=2,color=ifelse(hip$DE>0,"red","blue"),shape=1)
+```
+
+* Haz un scatterplot de RA y pmRA. ¿Ves algún patrón?
+
+```{r}
+ggplot(hip, aes(x=hip$RA, y=hip$pmRA))+ geom_point(size=2,shape=2)+geom_smooth(method=lm, ,color="darkred")
+```
+
+Aunque parece que a valores entre 100 y 150 de RA obtenemos valores más pequeños de pmRA la distribución de estos datos es bastante compleja y esto que apreciamos no es suficientemente concluyente para poder afirmar que exiten relaciones entre ambas variables. 
+
+
+
