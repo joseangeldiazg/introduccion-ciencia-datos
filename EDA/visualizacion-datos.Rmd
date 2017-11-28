@@ -2,7 +2,7 @@
 title: "Visualización de datos en R"
 author: joseangeldiazg
 date: November 22, 2017
-output: html_document
+output: pdf_document
 ---
 
 # Ejercicio 1:
@@ -169,8 +169,20 @@ obtieneSiglo<-function(year)
   }
 }
 
+ny.dataframe$CategoricYear<-lapply(ny.dataframe$Year,obtieneSiglo)
 
-ny.dataframe$CategoricYear<-obtieneSiglo(ny.dataframe$Year)
+```
+
+
+Ahora solo tenemos que dibujar nuestro gráfico con la variable categórica creada, pero antes debemos pasarla a factor.
+
+
+```{r}
+ny.dataframe$CategoricYear<-unlist(ny.dataframe$CategoricYear)
+ny.dataframe$FactorCategoricYear<-as.factor(ny.dataframe$CategoricYear)
+
+plot(ny.dataframe$Warmest.Minimum.Temperature..F., ny.dataframe$Coldest.Minimum.Temperature..F. , col=ny.dataframe$Year, main="Warmest.Minimum.Temperature vs Coldest.Minimum.Temperature", xlab="Warmest.Minimun.T", ylab = "Coldest.Minimum.T") 
+legend("topleft", legend=levels(ny.dataframe$FactorCategoricYear),col=1:length(levels(ny.dataframe$FactorCategoricYear)), pch=16)
 ```
 
 
