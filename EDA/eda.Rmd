@@ -189,7 +189,54 @@ ggpairs(hip[1:8])
 
 ```{r}
 complete.hip <- hip[complete.cases(hip), ]
-
 attach(complete.hip)
-filter(complete.hip, RA >= 50 & RA <=100)
+```
+
+
+# Ejemplo 2, iris dataset
+
+
+Vamos a utilizar el ejemplo del dataset iris que está incluido en la distribución de R. Este dataset fue creado por **Douglas Fisher**.  Consta de tres clases y tipos de 3 clases de tipos de flores:
+
+1. Setosa_
+2. Virginica
+3. Versicolor
+  
+Cada una de ellas con cuatro atributos:
+
+1. sepal width
+2. sepal length
+3. petal width
+4. petal length
+
+
+* Inspecciona las primeras filas del dataset y calcula el summary() del mismo con cada atributo del dataset.
+
+Esto nos ayuda a tener una idea inicial de como son los datos, en este caso están perfectamente equilibradas las clases, los rangos de valores son mas o menos similares y el IRQ es similar. 
+
+```{r}
+iris.data<-iris
+head(iris.data)
+summary(iris.data)
+str(iris.data)
+```
+
+
+* Crea un histograma de petal.width , teniendo en cuenta que el número de bins es variable fija este a 9. Añádele color y nombres al eje x "Petal Width"y al gráfico dale el nombre de  "Histogram of Petal Width". 
+
+```{r}
+library(ggplot2)
+ggplot(data=iris.data, aes(iris.data$Petal.Width)) + geom_histogram(binwidth = 0.3) +labs(title="Histogram of Petal Width",x ="Petal Width", y = "Frecuency")
+```
+
+* Crea un histograma para cada variable.
+
+
+```{r}
+ggplot(data=iris.data, aes(iris.data$Sepal.Length)) + geom_histogram(binwidth = 0.5) +labs(title="Histogram of Sepal.Length",x ="Sepal.Length", y = "Frecuency")
+
+ggplot(data=iris.data, aes(iris.data$Sepal.Width)) + geom_histogram(binwidth = 0.5) +labs(title="Histogram of Sepal.Width",x ="Sepal.Width", y = "Frecuency")
+
+ggplot(data=iris.data, aes(iris.data$Petal.Length)) + geom_histogram(binwidth = 0.5) +labs(title="Histogram of Petal.Length",x ="Petal.Length", y = "Frecuency")
+
 ```
