@@ -1,7 +1,7 @@
 ---
 title: "Exploratory Data Analysis in R"
 author: joseangeldiazg
-date: November 25, 2017
+date: November 25 2017
 output: html_document
 ---
 
@@ -131,7 +131,25 @@ apply(hip,2,hasNA)
 boxplot(hip, main="HIP BOX PLOT", ylab="Value", xlab="Variable")
 ```
 
-Vemos que el gráfico no es muy revelador esto es porque tenemos variables de rangos muy distintos, podemos normalizarlas para ver algo mejor la dispersion de los datos. De todas formas este gráfico ya nos aportaria información como que la variable HIP está muy por encima de  los valores de las demás que se encuentran en rangos similares en función a esta y que tenemos presencia de bastantes outliers en pmRA y pmDE.
+Vemos que el gráfico no es muy revelador esto es porque tenemos variables de rangos muy distintos, podemos normalizarlas para ver algo mejor la dispersion de los datos. De todas formas este gráfico ya nos aportaria información como que la variable HIP está muy por encima de  los valores de las demás que se encuentran en rangos similares en función a esta y que tenemos presencia de bastantes outliers en pmRA y pmDE. Vamos a normalizar para ver si el resultado mejora:
+
+
+```{r}
+library(scales)
+hip_norm<-hip
+
+hip_norm$HIP <- rescale(hip$HIP)
+hip_norm$Vmag <- rescale(hip$Vmag)
+hip_norm$RA <- rescale(hip$RA)
+hip_norm$DE <-rescale(hip$DE)
+hip_norm$Plx<-rescale(hip$Plx)
+hip_norm$pmRA<-rescale(hip$pmRA)
+hip_norm$pmDE<-rescale(hip$pmDE)
+hip_norm$e_Plx<-rescale(hip$e_Plx)
+
+
+boxplot(hip_norm, main="HIP BOX PLOT NORMALIZADO", ylab="Value", xlab="Variable")
+```
 
 
 
@@ -144,10 +162,34 @@ ggplot(hip, aes(x=hip$RA, y=hip$DE))+ geom_point(size=2,color=ifelse(hip$DE>0,"r
 * Haz un scatterplot de RA y pmRA. ¿Ves algún patrón?
 
 ```{r}
-ggplot(hip, aes(x=hip$RA, y=hip$pmRA))+ geom_point(size=2,shape=2)+geom_smooth(method=lm, ,color="darkred")
+ggplot(hip, aes(x=hip$RA, y=hip$pmRA))+ geom_point(size=2,shape=2)+geom_smooth(method=lm,color="darkred")
 ```
 
 Aunque parece que a valores entre 100 y 150 de RA obtenemos valores más pequeños de pmRA la distribución de estos datos es bastante compleja y esto que apreciamos no es suficientemente concluyente para poder afirmar que exiten relaciones entre ambas variables. 
 
 
+* En vez de crear los plots por separado para cada par de columnas, hazlos con un solo comando con el scatterplot matrix.
 
+Para esto podemos usar pairs, pero si usamos el comando ggpairs nos ofrecerá mas informacion como correlaciones entre vairables e incluso distribuciones de las mismas. 
+
+```{r}
+library(GGally)
+ggpairs(hip[1:8])
+```
+
+* Para poder acceder a las variables por su nombre usa attach(hip).Vamos a seleccionar las estrellas Hyadas del dataset aplicando los siguientes filtros:
+
+
+1. RA in the range (50,100) 
+2. DE in the range (0,25) 
+3. pmRA in the range (90,130) 
+4. pmDE in the range (-60,-10) 
+5. e_Plx <5 
+6. Vmag >4 OR B.V <0.2 
+
+```{r}
+complete.hip <- hip[complete.cases(hip), ]
+
+attach(complete.hip)
+filter(complete.hip, RA >= 50 & RA <=100)
+```
