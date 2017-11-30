@@ -295,7 +295,7 @@ ggpairs(iris.data)
 ```
 
 
-# SWISS dataset
+### SWISS dataset
 
 El conjunto de datos “swiss” contiene una medida estandarizada de fecundidad y varios indicadores socioeconómicos para cada una de las 47 provincias francófonas de Suiza. 
 
@@ -340,4 +340,137 @@ ggplot(swiss, aes(x=swiss$Education, y=swiss$Agriculture))+
 
 Aunque la relación no es muy clara, una vez visto el gráfico podemos ver que a menores valores de educación, mayores de educación por lo que el gráfico se asemeja a una función exponencial con una correlación negativa bastante fuerte. 
 
+
+### Aceites de Oliva
+
+
+El conjunto de datos de aceites de oliva es bien conocido y se puede encontrar en varios paquetes, por ejemplo, como **olives** en extracat.La fuente original de los datos es el artículo [Forina et al., 1983]. 
+
+Vamos a obtener el dataset:
+
+```{r}
+install.packages("extracat")
+library(extracat)
+head(olives)
+```
+ 
+1. Dibuje un scatterplot  de las ocho variables continuas. ¿Cuáles de los ácidos grasos están fuertemente asociados positivamente y cuáles fuertemente asociados negativamente? 
+
+```{r}
+ggpairs(olives[3:10])
+```
+Nuevamente con ggpairs obtenemos la información que deseamos, ya que nos ofrece las correlaciones negaticas y positicas entre cada uno de los gráficos. 
+
+* ¿Hay valores atípicos u otras características que valga la pena mencionar?
+
+```{r}
+boxplot(olives[3:10])
+```
+
+
+Aunque deberíamos usar normalización para ver los datos representados en una misma escala podemos concluir que hay ciertos valores atípicos o outliers, en **stearic**, **linolenic** sobre todo. 
+
+### HSAUR2.
+
+El conjunto de datos se llama Lanza del paquete HSAUR2, por ello, lo primero será obtener los datos. 
+
+```{r}
+install.packages("HSAUR2")
+library("HSAUR2")
+Lanza
+```
+*Se informan los datos de cuatro estudios. Dibuje un diagrama para mostrar si los cuatro estudios son igualmente grandes. 
+
+Para obtener la información sobre el número de elementos de una determinada variable el mejor gráfico es un gráfico de barras.
+
+```{r}
+estudy.freq <- table(Lanza$study) 
+barplot(estudy.freq)
+```
+
+Vemos que los estudios de tipo IV, están en clara minoría, por lo que podremos tener sesgos en estas clases a la hora de clasificar a los que tendremos que prestar mucha atención. 
+
+* El resultado se mide por la clasificación de la variable con puntuaciones de 1 (mejor) a 5 (peor). ¿Cómo describirías la distribución?
+
+
+Pues hay una clara diferencia entre las clasificadas como 1 y las demás, que con ciertos matices, están bastante bien distribuidas. 
+
+```{r}
+class.freq <- table(Lanza$classification) 
+barplot(class.freq)
+```
+
+
+### Cáncer de mama
+
+El paquete vcdExtra incluye datos de un viejo estudio de cáncer de mama sobre la supervivencia o muerte de 474 pacientes. 
+
+```{r}
+install.packages("vcdExtra")
+library("vcdExtra")
+cancer.dataframe<-as.data.frame(Cancer)
+```
+
+* Convierta los datos en un data frame y dibuje gráficos para comparar las tasas de supervivencia, primero, por grado de malignidad y, en segundo lugar, por centro de diagnóstico. 
+
+
+Para este caso lo mejor es un gráfico de mosaico.
+
+```{r}
+library(vcd)
+mosaic(Survival ~ Grade, data = cancer.dataframe, shade=TRUE)
+mosaic(Survival ~ Center, data = cancer.dataframe, shade=TRUE)
+```
+
+En cuanto a centros las tasas son muy parecidas en cambio, cuando vemos si es benigno o maligno si que, como la propia logica nos diría, al ser maligno los supervivientes son menos. 
+
+* ¿Qué diagrama dibujaría para comparar las tasas de supervivencia tanto por grado de malignidad como por centro de diagnóstico? ¿Importa el orden de las variables explicativas?
+
+Para meter todo dentro de un gráfico volvería a usar el gráfico de mosaico. 
+
+```{r}
+mosaic(Survival~Grade+Center, data = cancer.dataframe, shade=TRUE)
+```
+
+### Crabs
+
+* Dataset Crabs (del paquete MASS) [Venables y Ripley, 2002]. Los autores inicialmente se transforman a una escala logarítmica y luego escriben que:
+
+ “The data are very highly correlated and scatterplot matrices and brush plots [i.e. interactive graphics] are none too revealing.”. 
+
+Utilizando gráficos generales, comente si la transformación logarítmica fue una buena idea y si está de acuerdo con su afirmación sobre las correlaciones.
+
+```{r}
+install.packages("MASS")
+library(MASS)
+head(crabs)
+```
+
+En base a los datos, lo primero que tendremos que hacer es pintar los pairs de las variables continuas, ya que las demas no aportan información para lo que queremos comprobar.
+
+```{r}
+pairs(crabs[4:8])
+```
+
+Definitivamente si que fue una buena idea la transformación logarítmica con las variables, ya que todas presenta una correlacion lineal total. 
+
+
+
+# Como crear subgrupos de datos en R
+
+Busca información sobre la function cut(). Para ilustrar su uso vamos a utilizar el dataset state.x77. Si no lo tienes instalado instala el paquete R-Datasets. Usa la función head() para ver como son tus datos.
+
+
+* Extrae la columna Frost y asigna el resultado a la variable frost
+
+* Tu nuevo objeto es un vector numérico. Ahora intenta agrupar los datos en frost en tres niveles. Para crear bins en tus datos puedes utilizar la función cut(). 
+
+
+* ¿Que obtienes como nombres de los niveles?
+
+* En la realidad no existen estados que tengan frost en días negativos. Esto es porque R añade un poco de padding. Prueba a solucionar el problema utilizando el parámetro include.lowest=TRUE en cut().
+
+* Los nombres de los niveles no son demasiado informativos, especifica nuevos nombres para los niveles.
+
+* Después de este paso has creado un factor que clasifica los estados en bajo, medio y alto según el numero de heladas. Ahora cuenta el número de estados que  hay en cada uno de los niveles. PISTA: utiliza la función table()
 
