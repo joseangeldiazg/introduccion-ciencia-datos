@@ -173,6 +173,7 @@ Aunque parece que a valores entre 100 y 150 de RA obtenemos valores más pequeñ
 Para esto podemos usar pairs, pero si usamos el comando ggpairs nos ofrecerá mas informacion como correlaciones entre vairables e incluso distribuciones de las mismas. 
 
 ```{r}
+install.packages("GGAlly")
 library(GGally)
 ggpairs(hip[1:8])
 ```
@@ -187,10 +188,32 @@ ggpairs(hip[1:8])
 5. e_Plx <5 
 6. Vmag >4 OR B.V <0.2 
 
+Crea un nuevo dataset con la aplicación de estos filtro. El Nuevo dataset se llama hyades. 
+
+
 ```{r}
-complete.hip <- hip[complete.cases(hip), ]
-attach(complete.hip)
+hip <- hip[complete.cases(hip), ]
+hyades<-hip[hip$RA > 50 & hip$RA < 100 &
+    hip$DE>0 & hip$DE<25 &
+    hip$pmRA>90 & hip$pmRA<130 &
+    hip$pmDE> -60 & hip$pmDE< -10 &
+    hip$e_Plx < 5 &
+    (hip$Vmag>4|hip$B.V<0.2),]
+
+hyades
 ```
+
+
+* ¿Que dimensiones tiene el dataset creado? Grafica un scatterplot de Vmag vs B.V
+
+Tiene 88 observaciones con 9 variables cada una. 
+
+```{r}
+str(hyades)
+ggplot(hyades, aes(x=hyades$Vmag, y=hyades$B.V))+ geom_point(size=1,shape=1)
+```
+
+Analizando el gráfico podemos ver que la relación de las variables es totalmente lineal, lo que podria ayudarnos por ejemplo a poder predecir mediente regresión posibles valores perdidos en una de ambas. Tambien podremos descartar una de ellas en función de otra en nuestros modelos ya que ambas pueden aportar información muy similar al estár tan correlacionadas. 
 
 
 # Ejemplo 2, iris dataset
@@ -238,5 +261,83 @@ ggplot(data=iris.data, aes(iris.data$Sepal.Length)) + geom_histogram(binwidth = 
 ggplot(data=iris.data, aes(iris.data$Sepal.Width)) + geom_histogram(binwidth = 0.5) +labs(title="Histogram of Sepal.Width",x ="Sepal.Width", y = "Frecuency")
 
 ggplot(data=iris.data, aes(iris.data$Petal.Length)) + geom_histogram(binwidth = 0.5) +labs(title="Histogram of Petal.Length",x ="Petal.Length", y = "Frecuency")
-
 ```
+
+
+* Crea los cuartiles del dataset
+
+```{r}
+summary(iris.data, na.rm=T)
+```
+
+* Representa en un boxplot la variable de ancho de hoja dependiendo del tipo de hoja que tengan.
+
+```{r}
+boxplot(iris.data$Sepal.Width~iris.data$Species, main="Ancho de Hoja por Especie", ylab="Ancho de Hoja", xlab="Especie")
+```
+
+Este gráfico no podemos ver una tendencia clara, más haya de que encontramos los cuartiles bien distribuidos y salvo un caso la existencia de outliers es nula.
+
+* Crea los boxplot de la longitud del pétalo en función de la especie de Iris.
+
+```{r}
+boxplot(iris.data$Petal.Length~iris.data$Species, main="Longitud Petalo de Hoja por Especie", ylab="Longitud de Petalo", xlab="Especie")
+```
+
+Este gráfico ya nos ofrece mucha información, vemos una tendencia entre los datos de setosa a virginica, en función del Sepal Lenght muy clara, ya que cuanto mayor es cambia la especie. También vemos un outlier en la especie versicolor y setosa. 
+
+* Compara con scatter plots las variables entre sí.
+
+Vamos a volver a usar ggpairs, que nos ofrece mucha más información.
+
+```{r}
+ggpairs(iris.data)
+```
+
+
+# SWISS dataset
+
+El conjunto de datos “swiss” contiene una medida estandarizada de fecundidad y varios indicadores socioeconómicos para cada una de las 47 provincias francófonas de Suiza. 
+
+```{r}
+head(swiss)
+```
+
+
+* ¿Qué diagrama dibujaría para mostrar la distribución de todos los valores? ¿Qué conclusiones sacarías?
+
+
+Para obtener la distribución de todos los valores realizaría un Boxplot. En base al diagrama, podemos concluir que hay un valor que claramente es un %, **Catholic**, este ademas ofrece una dispersión entre los que están por encima de la mediana muy alta, frente a los que están por debajo de la misma. 
+
+Por otro lado, tenemos bastantes outliers en **Education**.
+
+
+```{r}
+boxplot(swiss, main="Boxplot Swiss", xlab="Variables", ylab="Valor")
+```
+
+
+* Dibuje gráficos para cada variable. ¿Qué puede concluir de las distribuciones con respecto a su forma y posibles valores atípicos? 
+
+* Dibuja un diagrama de dispersión de Fertilidad frente a % Catholic. ¿Qué tipo de áreas tienen las tasas de fertilidad más bajas? 
+
+```{r}
+ggplot(swiss, aes(x=swiss$Catholic, y=swiss$Fertility))+
+  geom_point(size=2,shape=5)
+```
+
+Las áreas con menor fertilidad son aquellas que tienen un % de católicos entre el 50% y 60%.
+
+
+* ¿Qué tipo de relación existe entre las variables Educación y Agricultura?
+
+```{r}
+ggplot(swiss, aes(x=swiss$Education, y=swiss$Agriculture))+
+  geom_point(size=2,shape=1)+
+  geom_smooth(method=loess,color="darkred")
+```
+
+
+Aunque la relación no es muy clara, una vez visto el gráfico podemos ver que a menores valores de educación, mayores de educación por lo que el gráfico se asemeja a una función exponencial con una correlación negativa bastante fuerte. 
+
+
