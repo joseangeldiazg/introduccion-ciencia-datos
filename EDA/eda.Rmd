@@ -2,7 +2,7 @@
 title: "Exploratory Data Analysis in R"
 author: joseangeldiazg
 date: November 25 2017
-output: html_document
+output: pdf_document
 ---
 
 # Ejemplo 1, hip dataset
@@ -128,6 +128,7 @@ apply(hip,2,hasNA)
 
 
 ```{r}
+library(ggplot2)
 boxplot(hip, main="HIP BOX PLOT", ylab="Value", xlab="Variable")
 ```
 
@@ -136,6 +137,7 @@ Vemos que el gráfico no es muy revelador esto es porque tenemos variables de ra
 
 ```{r}
 library(scales)
+
 hip_norm<-hip
 
 hip_norm$HIP <- rescale(hip$HIP)
@@ -461,16 +463,42 @@ Definitivamente si que fue una buena idea la transformación logarítmica con la
 Busca información sobre la function cut(). Para ilustrar su uso vamos a utilizar el dataset state.x77. Si no lo tienes instalado instala el paquete R-Datasets. Usa la función head() para ver como son tus datos.
 
 
+```{r}
+head(state.x77)
+state<-as.data.frame(state.x77)
+```
+
 * Extrae la columna Frost y asigna el resultado a la variable frost
 
+```{r}
+frost<-state$Frost
+```
 * Tu nuevo objeto es un vector numérico. Ahora intenta agrupar los datos en frost en tres niveles. Para crear bins en tus datos puedes utilizar la función cut(). 
 
+```{r}
+levels.frost<-cut(frost, breaks=3)
+levels.frost
+```
 
 * ¿Que obtienes como nombres de los niveles?
 
+Los nombres de los niveles son los rangos de valores. Es decir, el mínimo y máximo valor entre el que se encontraba un valor anterior del vector. 
+
 * En la realidad no existen estados que tengan frost en días negativos. Esto es porque R añade un poco de padding. Prueba a solucionar el problema utilizando el parámetro include.lowest=TRUE en cut().
+
+```{r}
+levels.frost<-cut(frost, breaks=3,labels = NULL,include.lowest=T)
+```
 
 * Los nombres de los niveles no son demasiado informativos, especifica nuevos nombres para los niveles.
 
+```{r}
+levels(levels.frost)<-list("Bajo"="[-0.188,62.7]","Medio"="(62.7,125]","Alto"="(125,188]")
+levels.frost
+```
+
 * Después de este paso has creado un factor que clasifica los estados en bajo, medio y alto según el numero de heladas. Ahora cuenta el número de estados que  hay en cada uno de los niveles. PISTA: utiliza la función table()
 
+```{r}
+table(levels.frost)
+```
