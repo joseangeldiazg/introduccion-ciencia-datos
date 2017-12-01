@@ -1,0 +1,105 @@
+---
+title: "Estudio de Regresión sobre el dataset California"
+author: "joseangeldiazg"
+date: "1/12/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(rmarkdown)
+```
+
+## Regresión lineal simple y multiple sobre el dataset California. 
+
+
+  
+En este caso usaremos el dataset California, incluido en los datasets de la Herramienta KEEL. Para ello, lo primero que tendremos que hacer es leer el dataset de una manera un tanto especial. 
+  
+
+```{r}
+california <- read.csv("datasets/california.dat", comment.char="@")
+#Asignación manual
+names(california) <- c("Longitude", "Latitude", "HousingMedianAge",
+"TotalRooms", "TotalBedrooms", "Population", "Households", "MedianIncome", "MedianHouseValue")
+head(california)
+```
+
+
+Una vez nuestro dataset está creado, podemos añadirlo al entorno con *attach* por comodidad a la hora de referenciar a las variables, aunque para facilitar la comprensión del mismo esto no lo haremos.
+
+## Visualización.
+
+Por medio de algunos gráficos, vamos a intentar buscar relaciones entre nuestras variables. Lo primero será usar la funcion pairs par ver que variables pueden resultarnos mas interesantes. 
+
+```{r}
+pairs(california)
+```
+
+
+En base al anterior gráfico, podemos crear otros gráficos, con la siguiente funcion de manera sencilla.
+
+```{r}
+temp <- california
+plotY <- function(x,y) 
+{
+  plot(temp[,y]~temp[,x], xlab=paste(names(temp)[x]," X",x,sep=""), ylab=names(temp)[y])
+}
+```
+
+
+Acorde a los gráficos visto con la funcion pairs podemos encontrar cierta correlación entre variables. Vamos a dibujar sus gráficos. 
+
+
+
+```{r}
+plotY(5,4)
+plotY(7,4)
+```
+
+
+Como vemos hay correlación lineal, pero si atendemos a los datos, aporta más bien poco ya que son cosas triviales, como a mas personas dentro de la casa mas habitaciones, algo totalmente trivial. 
+
+
+Vamos a analizar con más detalle las relaciones entre las **variables independienes** y la **variable dependiente** de nuestro problema. 
+
+
+```{r}
+plotY(3,9)
+plotY(4,9)
+plotY(5,9)
+plotY(6,9)
+plotY(7,9)
+plotY(8,9)
+```
+
+
+
+Vamos a probar si realizando una transformación logarítmica podemos encontrar mejores relaciones. 
+
+```{r}
+logcalifornia <- log(california[3:9])
+pairs(logcalifornia)
+```
+
+
+Volvemos a generar los gráficos de nuestros datos en función a la variable dependiente. 
+
+```{r}
+plot(logcalifornia$MedianHouseValue~logcalifornia$HousingMedianAge)
+plot(logcalifornia$MedianHouseValue~logcalifornia$TotalRooms)
+plot(logcalifornia$MedianHouseValue~logcalifornia$TotalBedrooms)
+plot(logcalifornia$MedianHouseValue~logcalifornia$Population)
+plot(logcalifornia$MedianHouseValue~logcalifornia$Households)
+plot(logcalifornia$MedianHouseValue~logcalifornia$MedianIncome)
+```
+
+
+Los datos no son muy reveladores, pero parece que tenemso una buena candidata para el ajuste lineal simple. Esta candidata es el **Median House Value**.
+
+
+## Obtención de modelos lineales simples
+
+
+
+
