@@ -95,11 +95,96 @@ plot(logcalifornia$MedianHouseValue~logcalifornia$MedianIncome)
 ```
 
 
-Los datos no son muy reveladores, pero parece que tenemso una buena candidata para el ajuste lineal simple. Esta candidata es el **Median House Value**.
+Los datos no son muy reveladores, pero parece que tenemso una buena candidata para el ajuste lineal simple. Esta candidata es el **MedianInCome**.
 
 
 ## Obtención de modelos lineales simples
 
 
+Vamos a obtener el modelo para **MedianInCome**.
+
+```{r}
+fit1=lm(california$MedianHouseValue~california$MedianIncome)
+fit1
+```
+
+Ahora que hemos construido el modelo simple, vamos a obtener los resultados. 
 
 
+```{r}
+summary(fit1)
+plot(california$MedianHouseValue~california$MedianIncome)
+abline(fit1,col="red") 
+confint(fit1)
+```
+
+
+En la anterior salida, cabe comentar el valor idéntico entre *Adjusted R-squared* y *R-squared*, debido a que solo estamos usando un predictor para nuestro modelo, si usaramos varios, deberíamos decantarnos por el *Adjusted R-squared*, ya que *R-squared* no se ajustaría a la realidad del problema.  
+
+
+Vamos a probar a crear ahora el modelo con nuestra versión con transformación logarítmica, para ver los resultados. 
+```{r}
+fitlog=lm(logcalifornia$MedianHouseValue~logcalifornia$MedianIncome)
+summary(fitlog)
+plot(logcalifornia$MedianHouseValue~logcalifornia$MedianIncome)
+abline(fitlog,col="red") 
+confint(fitlog)
+```
+
+
+Los datos constatan que nuestra transformación de los datos a logarítmica ha sido acerdata ya que hemos bajado el error. Por último, vamos a calcular manualmente el **error residual**, para prácticar en el acceso de los datos del modelo y comprobar si ofrece resultados similares a los de la función **summary()**.
+
+
+```{r}
+names(fitlog)
+sqrt(sum(fitlog$residuals^2)/length(fitlog$residuals))
+```
+
+
+Antes de entrar a predecir con nuestro modelo casos nuevos, vamos a probar con las demás variables ya que es posible que alguna de ellas aunque en el proceso de EDA pareciera que no eran buenas si que lo sean. 
+
+
+```{r}
+fit2<-lm(logcalifornia$MedianHouseValue~logcalifornia$HousingMedianAge)
+fit3<-lm(logcalifornia$MedianHouseValue~logcalifornia$TotalRooms)
+fit4<-lm(logcalifornia$MedianHouseValue~logcalifornia$TotalBedrooms)
+fit5<-lm(logcalifornia$MedianHouseValue~logcalifornia$Population)
+fit6<-lm(logcalifornia$MedianHouseValue~logcalifornia$Households)
+
+summary(fit2)
+plot(logcalifornia$MedianHouseValue~logcalifornia$HousingMedianAge)
+abline(fit2,col="red") 
+confint(fit2)   
+```
+
+
+```{r}
+summary(fit3)
+plot(logcalifornia$MedianHouseValue~logcalifornia$TotalRooms)
+abline(fit3,col="red") 
+confint(fit3)   
+```
+
+```{r}
+summary(fit4)
+plot(logcalifornia$MedianHouseValue~logcalifornia$TotalBedrooms)
+abline(fit4,col="red") 
+confint(fit4)   
+```
+
+```{r}
+summary(fit5)
+plot(logcalifornia$MedianHouseValue~logcalifornia$Population)
+abline(fit5,col="red") 
+confint(fit5)   
+```
+
+```{r}
+summary(fit6)
+plot(logcalifornia$MedianHouseValue~logcalifornia$Households)
+abline(fit6,col="red") 
+confint(fit6)   
+```
+
+
+## Obtención de modelos lineales múltiples
