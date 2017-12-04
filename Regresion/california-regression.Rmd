@@ -10,7 +10,9 @@ knitr::opts_chunk$set(echo = TRUE)
 library(rmarkdown)
 ```
 
-## Regresión lineal simple y multiple sobre el dataset California. 
+
+
+## Práctica de laboratorio 1 Regresión lineal simple y multiple sobre el dataset California. 
 
 
   
@@ -37,7 +39,7 @@ pairs(california)
 ```
 
 
-En base al anterior gráfico, podemos crear otros gráficos, con la siguiente funcion de manera sencilla.
+En base al anterior gráfico, podemos crear otros gráficos, con la siguiente función de manera sencilla.
 
 ```{r}
 temp <- california
@@ -132,7 +134,9 @@ confint(fitlog)
 ```
 
 
-Los datos constatan que nuestra transformación de los datos a logarítmica ha sido acerdata ya que hemos bajado el error. Por último, vamos a calcular manualmente el **error residual**, para prácticar en el acceso de los datos del modelo y comprobar si ofrece resultados similares a los de la función **summary()**.
+Los datos constatan que nuestra transformación de los datos a logarítmica no ha sido acerdata. Por ello, descartaremos esta medida.
+
+Por último, vamos a calcular manualmente el **error residual**, para prácticar en el acceso de los datos del modelo y comprobar si ofrece resultados similares a los de la función **summary()**.
 
 
 ```{r}
@@ -145,14 +149,14 @@ Antes de entrar a predecir con nuestro modelo casos nuevos, vamos a probar con l
 
 
 ```{r}
-fit2<-lm(logcalifornia$MedianHouseValue~logcalifornia$HousingMedianAge)
-fit3<-lm(logcalifornia$MedianHouseValue~logcalifornia$TotalRooms)
-fit4<-lm(logcalifornia$MedianHouseValue~logcalifornia$TotalBedrooms)
-fit5<-lm(logcalifornia$MedianHouseValue~logcalifornia$Population)
-fit6<-lm(logcalifornia$MedianHouseValue~logcalifornia$Households)
+fit2<-lm(california$MedianHouseValue~california$HousingMedianAge)
+fit3<-lm(california$MedianHouseValue~california$TotalRooms)
+fit4<-lm(california$MedianHouseValue~california$TotalBedrooms)
+fit5<-lm(california$MedianHouseValue~california$Population)
+fit6<-lm(california$MedianHouseValue~california$Households)
 
 summary(fit2)
-plot(logcalifornia$MedianHouseValue~logcalifornia$HousingMedianAge)
+plot(california$MedianHouseValue~california$HousingMedianAge)
 abline(fit2,col="red") 
 confint(fit2)   
 ```
@@ -160,31 +164,143 @@ confint(fit2)
 
 ```{r}
 summary(fit3)
-plot(logcalifornia$MedianHouseValue~logcalifornia$TotalRooms)
+plot(california$MedianHouseValue~california$TotalRooms)
 abline(fit3,col="red") 
 confint(fit3)   
 ```
 
 ```{r}
 summary(fit4)
-plot(logcalifornia$MedianHouseValue~logcalifornia$TotalBedrooms)
+plot(california$MedianHouseValue~california$TotalBedrooms)
 abline(fit4,col="red") 
 confint(fit4)   
 ```
 
 ```{r}
 summary(fit5)
-plot(logcalifornia$MedianHouseValue~logcalifornia$Population)
+plot(california$MedianHouseValue~california$Population)
 abline(fit5,col="red") 
 confint(fit5)   
 ```
 
 ```{r}
 summary(fit6)
-plot(logcalifornia$MedianHouseValue~logcalifornia$Households)
+plot(california$MedianHouseValue~california$Households)
 abline(fit6,col="red") 
 confint(fit6)   
 ```
 
 
 ## Obtención de modelos lineales múltiples
+
+Como hemos podido constatar los modelos simples no son muy reveladores, y la transformacion logaritmica aunque mejora en algunos casos, hace que nuestra mejor variable para el proceso de regresión empeore mas de un 2%. Basandonos en que un buen modelo de regresión deberá incluir a esta variable, vamos a generar modelos lineales múltiples con el fin de mejorar los valores obtenidos.
+
+```{r}
+fit1<-lm(california$MedianHouseValue~california$MedianIncome+california$TotalRooms)
+summary(fit1)
+```
+
+
+
+
+
+```{r}
+fit2<-lm(california$MedianHouseValue~california$MedianIncome+california$HousingMedianAge)
+summary(fit2)
+```
+
+En este caso, como hemos comentado anteriormente, debemos fijarnos en el valor **Adjusted R-Squared** ya que tenemos dos valores en nuestro modelo. Hemos conseguido mejorar bastante respecto al anterior por lo que parece que el modelo está empezando a comportarse mejor. 
+
+
+```{r}
+fit3<-lm(california$MedianHouseValue~california$MedianIncome+california$TotalBedrooms)
+summary(fit3)
+```
+
+Mejora algo respecto a la inclusión de solo el valor de Median Income, por lo que parece que es buena candidata para un modelo con las tres. Vamos a seguir probando. 
+
+```{r}
+fit3<-lm(california$MedianHouseValue~california$MedianIncome+california$Population)
+summary(fit3)
+```
+
+
+
+
+```{r}
+fit4<-lm(california$MedianHouseValue~california$MedianIncome+california$Households)
+summary(fit4)
+```
+
+
+Tenemos por tanto dos claras candidatas para nuestro modelo, estás son: **MedianInCome** y **HousingMedianAge**, por lo tanto, podremos construir modelos con mas variables añadiendo algunas a estas. Para ver cuales añadir y cuales quitar, podemos crear el modelo con todas y ver cuales podemos descartar según su valor de p-value. 
+
+
+```{r}
+fitfinal<-lm(MedianHouseValue~.,data = california)
+summary(fitfinal)
+```
+
+Parece que todas las variables son relevantes en funcion del p-value, el modelo ha mejorado bastante desde que creamos la priemera aproximación y quitar algún elemento hará que este probablemente empeore ya que todos son considerados relevantes. Vamos a probar con nuestro modelo de transformación logaritmica a ver si ha mejorado algo. 
+
+
+```{r}
+fitlog<-lm(MedianHouseValue~.,data = logcalifornia)
+summary(fitlog)
+```
+
+Podemos ver que comparándolo con el anterior modelo, este no ofrece tan buenos resultados. Por último calcularemos el error en nuestro modelo. 
+
+### Obtención de error en test de nuestro modelo
+
+Para ascercarnos más a la realidad de un problema dado, crearemos dos particiones del dataset california, una muestra aleatoria y del 20% para test y un 80% para el training.
+
+
+```{r}
+sample <- sample.int(n = nrow(california), size = floor(.75*nrow(california)), replace = F)
+train <- california[sample, ]
+test  <- california[-sample, ]
+```
+
+
+Ahora con nuestro conjunto de entrenamiento creamos el modelo:
+
+```{r}
+trainmodel<-lm(MedianHouseValue~.,data = train)
+summary(trainmodel)
+```
+
+Por último realizamos predicciones sobre el conjunto de test, que no hemos usado para probar el modelo y calculamos el error de manera manual. 
+
+```{r}
+yprime=predict(trainmodel,test)
+sqrt(sum(abs(test$MedianHouseValue-yprime)^2)/length(yprime))
+```
+
+Podemos ver como el error residual estándard no está muy por debajo que los del conjunto de training, y aunque no es un valor muy bueno, es bastante mejor que cuando comenzamos con nuestro proceso de regresión lineal simple. 
+
+#Práctica de laboratorio 2: Knn y Validación Cruzada
+
+
+Vamos a usar knn sobre nuestro conjunto de datos, para ello si no lo tenemos debemos instalar el paquete **kknn**.
+
+
+```{r include=false}
+install.packages("kknn")
+require(kknn)
+```
+
+
+Una vez instalado el paquete, crearemos el modelo sobre nuestro conjunto de training. 
+
+```{r}
+fitknn1<-kknn(MedianHouseValue~., train, test)
+```
+
+Una vez creado el modelo, podemos ver los valores si accedemos a *fitknn1$fitted.values*. Para ver manualmente el error podemos realizar lo siguiente:
+
+
+
+
+
+
