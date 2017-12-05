@@ -2,15 +2,8 @@
 title: "Estudio de Regresión sobre el dataset California"
 author: "joseangeldiazg"
 date: "1/12/2017"
-output: html_document
+output: pdf_document
 ---
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(rmarkdown)
-```
-
-
 
 ## Práctica de laboratorio 1 Regresión lineal simple y multiple sobre el dataset California. 
 
@@ -285,8 +278,7 @@ Podemos ver como el error residual estándard no está muy por debajo que los de
 Vamos a usar knn sobre nuestro conjunto de datos, para ello si no lo tenemos debemos instalar el paquete **kknn**.
 
 
-```{r include=false}
-install.packages("kknn")
+```{r}
 require(kknn)
 ```
 
