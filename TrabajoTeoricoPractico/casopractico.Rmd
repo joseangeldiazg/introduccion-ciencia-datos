@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 La práctica final de la asignatura *Introducción a la Ciencia de Datos*, requiere de:
 
-* Aplicacion de técnicas de estadística descriptiva y análisis exploratorio de datos sobre los datasets que se estudiarán en los puntos siguientes.
+* Aplicación de técnicas de estadística descriptiva y análisis exploratorio de datos sobre los datasets que se estudiarán en los puntos siguientes.
 * Estudio de técnicas de clasificación sobre un dataset especifico para clasificación. 
 * Estudio de técnicas de regresión sobre un dataset específico para regresión. 
 
@@ -57,7 +57,76 @@ head(pima)
 
 ## 3. Exploración del dataset Pima
 
+El primer paso para enfrentarnos a un dataset, será comprender que es cada una de las variables. En este caso tendremos que usar fuentes de información externas ya que no es fácil de intuir. Tras diversas búsquedas por internet podemos concluir que todo el dataset corresponde a mujeres y las caracteristicas representan:
+
+**Preg**: Número de embarazos. 
+**Plas**: Concentración de plasma de glucosa. 
+**Pres**: Presión arterial. 
+**Skin**: Espesor de la piel en el triceps en mm. 
+**Insu**: Insulina. 
+**Mass**: Indice de masa corporal. 
+**Pedi**: Función Pedigree de la Diabetes, mide el componente hereditario. 
+**Age**: Edad de la paciente. 
+**Class**: Salida, nos dice si tiene o no diabetes.
+
+Una vez conlcuida nuestra investigación podemos centrarnos en los datos "técnicos" del dataset, es decir, frente a que tipos de datos nos encontramos, dimensiones, distribuciones...
+
+### 3.1 Descripción de los datos de entrada del dataset Pima.
+
+Para obtener información sobre el dataset, podemos usar el comando *str* que nos ofrece esta en un formato bastante útil. 
+
+```{r}
+str(pima)
+```
+
+En base a la salida, podemos comprobar que estamos ante un **dataframe** con 767 observaciones y 9 variables, 8 de ellas son independientes, y una dependiente, Classs, que es un factor con dos niveles. Las variables independientes son de tipo numérico tanto enteros como valores de tipo double.  
+
+Con este simple comando, ya podemos darnos cuenta de un factor importante, y es que tenemos **errores o valores perdidos** en nuestro dataset. Esto es muy claro ya que una persona no puede tener valor 0 en el grosor de la piel, o en insulina. Deberemos estudiar esto con detalle en puntos siguientes, ya que si no lo hacemos y los tomamos como valores a tener en cuenta en el proceso de aprendizaje y harán que nuestro modelo clasifique muy mal ante muestras en test. 
+
+Por otro lado, vamos a comprobar la distribución de la clase, para ello, haremos uso del comando *table*, y de un gráfico de barras para verlo gráficamente. 
+
+```{r}
+barplot(table(pima$Class))
+```
+
+En base al gráfico podemos concluir que tenemos un problema no balanceado, es decir, con mayor número de representación de una clase que de la otra, por lo que podremos tener en nuestro proceso de clasificación cierto sesgo hacía la clase mayoritaria, en este caso, **tested_negative**.
+
+### 3.2 Calculo de las medidas estadísticas básicas. 
+
+Las medidas estadísticas básicas pueden ser útiles para el proceso de decripción del dataset. Y pueden calcularse facilmente con funciones como **mean()**, **median()**, **IQR()**... aunque hay paquetes y funciones que nos facilitan esta labor y nos ofrecen más informacion como **summary()** o **describe()**. 
+
+Usaremos estas, pero antes, pasaremos nuestros valores categorizados como 0 a NA, es decir, valor perdido para que R sepa como tratarlos, debemos tener cuidado en la variable **Preg**, ya que aqui el 0 no es un valor perdido, sino que indica que la paciente nunca ha estado embarazada. 
+
+```{r}
+pima[pima==0] <- NA
+pima$Preg<-ifelse(is.na(pima$Preg),0,pima$Preg)
+summary(pima)
+```
+
+Podemos ver como la distribuciones de las medidas de dispersión de las variables exceptuando algunas están en rangos similares,lo que nos facilitará la representación y estudio de las mismas gráficamente, aunque quizá igualmente necesitemos normalizar los datos, ya que hay picos muy altos por arriba en bastantes variables como en **Pedi** o en **Insu**, donde además, tenemos un número tal de valores perdidos que necesitará probablemente ser imputado o predicho con algun método de regresión. 
+
+Por último usaremos la funcion describe del paquete Hmisc, para ver si podemos obtener más información. 
+
+
+```{r}
+library (Hmisc)
+describe(pima)
+```
+
+### 3.3 Visualización del dataset Pima. 
+
+### 3.4 Resumen y descripción del proceso de Análisis Exploratorio del dataset Pima. 
+
+
 
 
 ## 4. Exploración del dataset autoMPG8.
+
+### 4.1 Descripción de los datos de entrada del dataset autoMPG8.
+
+### 4.2 Calculo de las medidas estadísticas básicas. 
+
+### 4.3 Visualizacion del dataset autoMPG8. 
+
+### 4.4 Resumen y descripcion del proceso de Análisis Exploratorio del dataset autoMPG8. 
 
