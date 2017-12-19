@@ -1,0 +1,63 @@
+---
+title: "Exploración de Datos"
+author: "joseangeldiazg"
+date: "18/12/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1. Introducción.
+
+
+La práctica final de la asignatura *Introducción a la Ciencia de Datos*, requiere de:
+
+* Aplicacion de técnicas de estadística descriptiva y análisis exploratorio de datos sobre los datasets que se estudiarán en los puntos siguientes.
+* Estudio de técnicas de clasificación sobre un dataset especifico para clasificación. 
+* Estudio de técnicas de regresión sobre un dataset específico para regresión. 
+
+En esta primera parte, nos centraremos en el primer punto. Para ello, lo primero que debemos hacer es conocer los datasets, para saber que tipo de datos manejamos y a que contexto o problema real pertenecen. 
+
+### Pima
+
+Los datos de este dataset, corresponden a datos de pacientes proporcionados por el Instituto Nacional de Diabetes, su objetivo, es predecir cunando un paciente tendrá o no diabetes en función de ciertas medidas de diagnóstico. 
+
+
+### AutoMPG8
+
+Es un dataset usado en problemas regresión. En los que el objetivo está en predecir MPG, *galones por milla*, consumidos por los coches en función de ciertos parámetros. Como su velocidad, peso, aceleración...
+
+
+## 2. Lectura de los datasets
+
+Los datasets ofrecidos en la web de la asignatura están en formato Keel, por lo que antes de proceder a trabajar con ellos deberemos cargarlos en Rstudio. Para ello procederemos como sigue:
+
+
+```{r}
+pima <- read.csv("../datasets/DatasetsClasificacion/pima/pima.dat", comment.char="@")
+autompg8 <- read.csv("../datasets/DatasetsRegresion/autoMPG8/autoMPG8.dat", comment.char="@")
+```
+
+Con esto hemos leido los datos, pero tenemos que asignarles nombres a las columnas, ya que por defecto estás no vienen en formato entendible por read.csv, por lo que lo haremos de manera manual. 
+
+
+```{r}
+names(autompg8) <- c("Cylinders", "Displacement", "Horse_power","Acceleration", "Model_year", "Origin", "Mpg")
+names(pima)<-c("Preg", "Plas", "Pres", "Skin", "Insu", "Mass", "Pedi", "Age", "Class")
+```
+
+Una vez hecho esto podemos ver el contenido de los datasets, usando la función *head*.
+
+```{r}
+head(autompg8)
+head(pima)
+```
+
+## 3. Exploración del dataset Pima
+
+
+
+## 4. Exploración del dataset autoMPG8.
+
