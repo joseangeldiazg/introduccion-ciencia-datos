@@ -66,7 +66,7 @@ El primer paso para enfrentarnos a un dataset, será comprender que es cada una 
 **Insu**: Insulina. 
 **Mass**: Indice de masa corporal. 
 **Pedi**: Función Pedigree de la Diabetes, mide el componente hereditario. 
-**Age**: Edad de la paciente. 
+**Age**:  Edad de la paciente. 
 **Class**: Salida, nos dice si tiene o no diabetes.
 
 Una vez conlcuida nuestra investigación podemos centrarnos en los datos "técnicos" del dataset, es decir, frente a que tipos de datos nos encontramos, dimensiones, distribuciones...
@@ -95,7 +95,7 @@ En base al gráfico podemos concluir que tenemos un problema no balanceado, es d
 
 Las medidas estadísticas básicas pueden ser útiles para el proceso de decripción del dataset. Y pueden calcularse facilmente con funciones como **mean()**, **median()**, **IQR()**... aunque hay paquetes y funciones que nos facilitan esta labor y nos ofrecen más informacion como **summary()** o **describe()**. 
 
-Usaremos estas, pero antes, pasaremos nuestros valores categorizados como 0 a NA, es decir, valor perdido para que R sepa como tratarlos, debemos tener cuidado en la variable **Preg**, ya que aqui el 0 no es un valor perdido, sino que indica que la paciente nunca ha estado embarazada. 
+Usaremos estas, pero antes, pasaremos nuestros valores categorizados como 0 a NA, es decir, valor perdido para que R sepa como tratarlos, debemos tener cuidado en la variable **Preg**, ya que aquí el 0 no es un valor perdido, sino que indica que la paciente nunca ha estado embarazada. 
 
 ```{r}
 pima[pima==0] <- NA
@@ -115,18 +115,130 @@ describe(pima)
 
 ### 3.3 Visualización del dataset Pima. 
 
+Una vez llgados a este punto, ya tenemos bastante información sobre los datos con los que estamos trabajando. Pero, intentaremos ir un poco más allá en el análisis del mismo con ciertos gráficos. 
+
+Lo primero será aplicar un **scatter plot** con el que podremos ver si existen correlaciones entre las variables.
+
+```{r}
+pairs(~.,data=pima, main="Scatterplot")
+```
+
+Parece ser que no hay correlaciones entre las variables, exceptuando Skin y Mass que parecen estár correlacionadas, algo que es obvio y trivial pues en la mayoría de los casos más masa corporal indicará un mayor grosor de la piel en los puntos de medida. 
+
+Dado que tenemos valores perdidos, usaremos histogramas sobre las variables, además de para hacernos una idea visual de su distribución, para tenerla en cuenta en el punto de imputación de valores perdidos y chequear que esta distribución actual, no se pierde al imputar estos. 
+
+```{r}
+par(mfrow = c(2, 2))
+hist(pima$Preg)
+hist(pima$Plas)
+hist(pima$Pres)
+hist(pima$Skin)
+```
+
+
+
+```{r}
+par(mfrow = c(2, 2))
+hist(pima$Insu)
+hist(pima$Mass)
+hist(pima$Pedi)
+hist(pima$Age)
+```
+
+En base a lo anterior, podemos concluir que las variables están distribuidas normalmente en su mayoría, y solo en ciertas variables como **Preg** o **Age**, encontramos distribuciones distintas, algo obvio, al menos en esta variable ya que las edades de las personas en una muestra real no estarán distribuidads normalmente, idem para el número de embarazos. La insulina tampoco está distribuida normalmente y esto si que puede ser un factor a estudiar. 
+
+## 3.4 Preprocesado de datos. 
+
+
+```{r}
+library(corrplot)
+pima$Class<-ifelse(pima$Class=="tested_positive",1,0)
+M <- cor(pima)
+corrplot(M, method = "circle")
+```
+
+En este punto trataremos de modificar los datos para obtener mejores resultados o al menos un dataset de mejor calidad para poder pasar a aplicar los algoritmos de clasificación siguientes. 
+
+#### Valores perdidos:
+
+El dataset tiene muchos valores perdios. Una posible solución pasaría por eliminar las muestras con estos valores, aunque esto probablemente intensifique en ratio de desbalanceo del problema. 
+
+```{r}
+pimacopy<-pima
+for (i in 2:6) {
+      pimacopy <- pimacopy[-which(is.na(pimacopy[, i])), ]
+}
+pimacopy
+```
+
+Nos hemos quedado con 392 muestras con todos sus datos completos, ahora vamos a ver la distribución de clases. 
+
+```{r}
+barplot(table(pimacopy$Class))
+```
+
+Parece que el problema de los datos no balanceados no empeora, pero aún así, una mejor solución para el problema de los valores perdidos será la imputación de los mismos mediante un predictor. 
+
+
+```{r}
+library(mice)
+mice_mod <- mice(pima[, c("Plas","Pres","Skin","Insu","Mass")], method='rf')
+pimacomplete <- complete(mice_mod)
+summary(pimacomplete)
+```
+
+Podemos ver como ahora no tenemos valores perdidos, pero antes, tal y como dijímos antes, vamos a comprobar que la distribución de variables sigue manteniendose, para ello compararemos los gráficos.
+
+```{r}
+par(mfrow=c(2,2))
+
+hist(pima$Plas, freq=F, main='Plas data original',
+     col='darkgreen', ylim=c(0,0.04))
+hist(pimacomplete$Plas, freq=F, main='Plas datos sin valores perdi',
+     col='lightgreen', ylim=c(0,0.04))
+
+hist(pima$Pres, freq=F, main='Pres data original',
+     col='darkgreen', ylim=c(0,0.04))
+hist(pimacomplete$Pres, freq=F, main='Plas datos sin valores perdidos',
+     col='lightgreen', ylim=c(0,0.04))
+
+```
+
+
+```{r}
+par(mfrow=c(2,2))
+
+hist(pima$Skin, freq=F, main='Skin data original',
+     col='darkgreen', ylim=c(0,0.04))
+hist(pimacomplete$Skin, freq=F, main='Skin datos sin valores perdi',
+     col='lightgreen', ylim=c(0,0.04))
+
+hist(pima$Insu, freq=F, main='Insu data original',
+     col='darkgreen', ylim=c(0,0.004))
+hist(pimacomplete$Insu, freq=F, main='Insu datos sin valores perdi',
+     col='lightgreen', ylim=c(0,0.004))
+```
+
+```{r}
+par(mfrow=c(2,2))
+hist(pima$Mass, freq=F, main='Mass data original',
+     col='darkgreen', ylim=c(0,0.06))
+hist(pimacomplete$Mass, freq=F, main='Mass datos sin valores perdi',
+     col='lightgreen', ylim=c(0,0.06))
+```
+
+Vemos como las distribuciones se mantienen y por tanto nuestro preceso parece haber funcionado bien. De igual modo, en proximas etapas compararemos el funcionamiento con y sin imputación. 
+
 ### 3.4 Resumen y descripción del proceso de Análisis Exploratorio del dataset Pima. 
-
-
 
 
 ## 4. Exploración del dataset autoMPG8.
 
 ### 4.1 Descripción de los datos de entrada del dataset autoMPG8.
 
-### 4.2 Calculo de las medidas estadísticas básicas. 
+### 4.2 Cálculo de las medidas estadísticas básicas. 
 
 ### 4.3 Visualizacion del dataset autoMPG8. 
 
-### 4.4 Resumen y descripcion del proceso de Análisis Exploratorio del dataset autoMPG8. 
+### 4.4 Resumen y descripción del proceso de Análisis Exploratorio del dataset autoMPG8. 
 
