@@ -149,15 +149,17 @@ En base a lo anterior, podemos concluir que las variables están distribuidas no
 
 ## 3.4 Preprocesado de datos. 
 
+En este punto trataremos de modificar los datos para obtener mejores resultados o al menos un dataset de mejor calidad para poder pasar a aplicar los algoritmos de clasificación siguientes. 
+
+
+### Datos unificados
+
+Todos los datos son de tipo entero, por lo que la clase en tipo string puede complicarnos las cosas o dar algun error futuro. Como estámos en un problema binario, lo sustituiremos por 1 o 0. 
 
 ```{r}
-library(corrplot)
 pima$Class<-ifelse(pima$Class=="tested_positive",1,0)
-M <- cor(pima)
-corrplot(M, method = "circle")
 ```
 
-En este punto trataremos de modificar los datos para obtener mejores resultados o al menos un dataset de mejor calidad para poder pasar a aplicar los algoritmos de clasificación siguientes. 
 
 #### Valores perdidos:
 
@@ -227,10 +229,45 @@ hist(pimacomplete$Mass, freq=F, main='Mass datos sin valores perdi',
      col='lightgreen', ylim=c(0,0.06))
 ```
 
-Vemos como las distribuciones se mantienen y por tanto nuestro preceso parece haber funcionado bien. De igual modo, en proximas etapas compararemos el funcionamiento con y sin imputación. 
+Vemos como las distribuciones se mantienen y por tanto nuestro proceso parece haber funcionado bien. De igual modo, en próximas etapas compararemos el funcionamiento con y sin imputación. Ahora mismo, pasaremos los datos completos al data set con el que estámos trabajando. 
+
+```{r}
+pima[,c("Plas","Pres","Skin","Insu","Mass")]<-pimacomplete[,c("Plas","Pres","Skin","Insu","Mass")]
+```
+
+Una vez imputados los valores perdidos, podemos volver a comprobar las correlaciones de las variables con el paquete corrplot,a ver si hay cambios o podemos obtener mejor informacion del dataset que el que obtuvimos en procesos anteriores. 
+
+```{r}
+library(corrplot)
+M <- cor(pima[c(-9)])
+corrplot(M, method = "circle")
+```
+
+A parte de la correlación vista anteriormente, entre el **Skin** y **Mass**, tambien podemos ver cierta relación fuerte entre **Insu** y **Plas** con la diferencia de que la distribución de Plas es normal frente a la de Insu, por lo que dejar una en función de otra puede ser apropiado para ciertos algoritmos de clasificación. 
+
+### Normalización
+
+Por último, dado que usaremos algoritmos de clasificación basados en distancias, normalizaremos los datos para evitar problemas en fases posteriores.
+
+
+```{r}
+library(caret)
+library(plyr)
+normalizados <- preProcess(pima, method = "range")
+pima<-predict(normalizados, pima)
+head(pima,5)
+```
+
 
 ### 3.4 Resumen y descripción del proceso de Análisis Exploratorio del dataset Pima. 
 
+En este punto, haremos un resumen del estudio de los datos y proceso. En el primer punto hemos estudiado los datos tal y como nos llegan, además de ingadar en el significado de cada una de las variables, esto nos ha llevado a encontrar datos anomalos con valor 0, claramente valores perdidos que hemos imputado con una predicción en puntos anteriores, ya que al eliminarlos, el dataset se quedaba muy pobre. Una vez realizada esta imputacion, se ha realizado un estudio de las distribuciones, y se ha comparado con las distribuciones de las variables antes de la predición de estos valores pedidos para comprobar que no se han generado valores anómalos. Hablando de preprocesado, hemos pasado todas la variables a numéricas y normalizado, para favorecer procesos de clasificación basados en distancias y la representacion gráfica de las variables con gráficos de cajas, con el fin de obtener informacion sobre posibles datos anómalos en la muestra. 
+
+En cuanto a la visualizacion de datos, aparte de los gráficos anteriormente citados, se han usado: 
+
+- Gráficos de barras para comparar la distribución de clases, con lo que se ha descubierto que estamos ante un problema de datos no balanceados. 
+- Histogramas para comparar y ver distribuciones. 
+- Scatter Plot y corrplot, para comprobar la correlación de variables. 
 
 ## 4. Exploración del dataset autoMPG8.
 
