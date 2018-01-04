@@ -183,8 +183,6 @@ bwplot(results)
 
 Vemos como estábamos en lo acertado, y si nos basamos en la evaluación ROC, nuestro proceso de predicción de valores perdidos ha funcionado bastante bien, frente a la eliminación de los mismos. Los buenos resultados obtenidos en por el modelo knn usando solo los 392 muestras sin ningun valor perdido seguramente estén debidos a que la proporción de la clase mayoritaria en test sea alta en relación a la minoritaria y por tanto la evaluación basada en **accuracy** no es la más apropiada. 
 
-
-
 ## LDA 
 
 

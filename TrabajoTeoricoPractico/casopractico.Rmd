@@ -44,7 +44,7 @@ Con esto hemos leido los datos, pero tenemos que asignarles nombres a las column
 
 
 ```{r}
-names(autompg8) <- c("Cylinders", "Displacement", "Horse_power","Acceleration", "Model_year", "Origin", "Mpg")
+names(autompg8) <- c("Cylinders", "Displacement", "Horse_power","Weight","Acceleration", "Model_year", "Origin", "Mpg")
 names(pima)<-c("Preg", "Plas", "Pres", "Skin", "Insu", "Mass", "Pedi", "Age", "Class")
 ```
 
@@ -93,7 +93,7 @@ En base al gráfico podemos concluir que tenemos un problema no balanceado, es d
 
 ### 3.2 Calculo de las medidas estadísticas básicas. 
 
-Las medidas estadísticas básicas pueden ser útiles para el proceso de decripción del dataset. Y pueden calcularse facilmente con funciones como **mean()**, **median()**, **IQR()**... aunque hay paquetes y funciones que nos facilitan esta labor y nos ofrecen más informacion como **summary()** o **describe()**. 
+Las medidas estadísticas básicas pueden ser útiles para el proceso de decripción del dataset. Y pueden calcularse fácilmente con funciones como **mean()**, **median()**, **IQR()**... aunque hay paquetes y funciones que nos facilitan esta labor y nos ofrecen más información como **summary()** o **describe()**. 
 
 Usaremos estas, pero antes, pasaremos nuestros valores categorizados como 0 a NA, es decir, valor perdido para que R sepa como tratarlos, debemos tener cuidado en la variable **Preg**, ya que aquí el 0 no es un valor perdido, sino que indica que la paciente nunca ha estado embarazada. 
 
@@ -212,12 +212,12 @@ par(mfrow=c(2,2))
 
 hist(pima$Skin, freq=F, main='Skin data original',
      col='darkgreen', ylim=c(0,0.04))
-hist(pimacomplete$Skin, freq=F, main='Skin datos sin valores perdi',
+hist(pimacomplete$Skin, freq=F, main='Skin datos sin valores perdidos',
      col='lightgreen', ylim=c(0,0.04))
 
 hist(pima$Insu, freq=F, main='Insu data original',
      col='darkgreen', ylim=c(0,0.004))
-hist(pimacomplete$Insu, freq=F, main='Insu datos sin valores perdi',
+hist(pimacomplete$Insu, freq=F, main='Insu datos sin valores perdidos',
      col='lightgreen', ylim=c(0,0.004))
 ```
 
@@ -225,7 +225,7 @@ hist(pimacomplete$Insu, freq=F, main='Insu datos sin valores perdi',
 par(mfrow=c(2,2))
 hist(pima$Mass, freq=F, main='Mass data original',
      col='darkgreen', ylim=c(0,0.06))
-hist(pimacomplete$Mass, freq=F, main='Mass datos sin valores perdi',
+hist(pimacomplete$Mass, freq=F, main='Mass datos sin valores perdidos',
      col='lightgreen', ylim=c(0,0.06))
 ```
 
@@ -259,6 +259,15 @@ head(pima,5)
 ```
 
 
+Una vez normalizados, por último usaremos un gráfico de cajas para comprobar si tenemos outliers entre nuestros datos y ver nuevamente las distribuciones de las variables tras la normalización. 
+
+
+```{r}
+boxplot(pima[,c("Preg", "Plas", "Pres","Skin","Insu","Mass","Pedi","Age")])
+```
+
+Vemos que tenemos bastantes datos anómalos en nuestro data set y que las distribuciones, salvo en dos o tres casos, son muy desplazadas a la izquierda. 
+
 ### 3.4 Resumen y descripción del proceso de Análisis Exploratorio del dataset Pima. 
 
 En este punto, haremos un resumen del estudio de los datos y proceso. En el primer punto hemos estudiado los datos tal y como nos llegan, además de ingadar en el significado de cada una de las variables, esto nos ha llevado a encontrar datos anomalos con valor 0, claramente valores perdidos que hemos imputado con una predicción en puntos anteriores, ya que al eliminarlos, el dataset se quedaba muy pobre. Una vez realizada esta imputacion, se ha realizado un estudio de las distribuciones, y se ha comparado con las distribuciones de las variables antes de la predición de estos valores pedidos para comprobar que no se han generado valores anómalos. Hablando de preprocesado, hemos pasado todas la variables a numéricas y normalizado, para favorecer procesos de clasificación basados en distancias y la representacion gráfica de las variables con gráficos de cajas, con el fin de obtener informacion sobre posibles datos anómalos en la muestra. 
@@ -271,11 +280,143 @@ En cuanto a la visualizacion de datos, aparte de los gráficos anteriormente cit
 
 ## 4. Exploración del dataset autoMPG8.
 
+Al igual que hicimos anteriormente con el dataset **pima**, antes de comenzar a analizar los datos, debemos buscar informacion relativa a estos y su contexto para ubicar el problema en sí. 
+
+**Cylinders**: Es el número de cilindros del coche. 
+**Displacement**: Es una medida de longitud, pero no se ha conseguido ubicarla a que corresponde ni en qué unidad está.
+**Horse_power**: Son los caballos de potencia del vehículo. 
+**Weight**: Es el peso del coche. 
+**Acceleration**: Es la aceleracion del coche. 
+**Model_year**: El año de fabricación del coche. 
+**Origin**: Origen del coche, creo que corresponde a regiones.
+**Mpg**: Miles Per Gallon, es el consumo del coche, y es la variable dependiente en nuestro problema. La que tendremos que predecir por medio de regresión, debemos tener en cuenta que valores más pequeños de este valor indican más consumos, es decir, con un galón se recorren menos millas. 
+
+Ahora que conocemos algo más del contexto del dataset al que nos enfrentamos, trataremos de focalizarnos en los datos técnicos y del dominio del mismo. 
+
 ### 4.1 Descripción de los datos de entrada del dataset autoMPG8.
+
+Como hemos dicho anteriormente, tenemos 8 variables, una dependiente **Mpg** y las demás independientes, para un total de 391 observaciones, es decir, tipos de coche distintos. Los tipos de datos de las variables pueden ser obtenidos con el comando str. 
+
+```{r}
+str(autompg8)
+```
+
+Todas las variables son númericas y concretamente, **Displacement, Aceleration** y **Mpg**, son de tipo real. Con el comando, describe, podremos ver un poco más en profundidad los datos:
+
+
+```{r}
+describe(autompg8)
+```
+
+Vemos que **no tenemos valores perdidos** y que concretamente la variable **Displacement** aunque aparece como tipo num, es un entero, por lo que la cambiaremos, para evitar posibles comportamientos no esperados.
+
+```{r}
+autompg8$Displacement<-as.integer(autompg8$Displacement)
+```
 
 ### 4.2 Cálculo de las medidas estadísticas básicas. 
 
-### 4.3 Visualizacion del dataset autoMPG8. 
+Vamos a obtener las medidas estadísticas básicas al igual que hicimos con el dataset pima, haciendo uso de funciones que nos ofrecen estas medidas en su conjunto. 
+
+```{r}
+summary(autompg8)
+```
+
+Vemos que las variables están en rangos distintos por lo que si queremos realizar gráficos conjuntos, probablemente deberemos normalizar las muestras. Hay diferencias muy significativas entre los mínimos y los máximos valores en ciertos casos, lo que puede ser relativo a la presencia de valores anómalos.
+
+### 4.3 Visualización del dataset autoMPG8. 
+
+En un proceso de regresión el primer paso es intentar encontrar gráficamente relaciones entre las variables, para seleccionarlas inicialmente en nuestro proceso. Por ello usaremos scatter plots, dado que en regresión este paso es crucial, usaremos la función ggpairs, en lugar de pairs, ya que nos ofrecerá mucha más información. 
+
+```{r}
+library(GGally)
+ggpairs(autompg8)
+```
+
+Parece ser que tenemos ciertas correlaciones claras en nuestros datos:
+
+- A más caballos de potencia, más peso. 
+- A más displacement más peso. 
+- A más cilindros más caballos, pesos y displacement...
+
+Y otras correlaciones negativas muy interesantes que pueden ayudarnos a predecir la variable dependiente Mpg. 
+
+- Mayores valores de displacement, horsepower o peso, implican menores valores de **Mpg**, lo que conlleva más consumo, algo bastante obvio pero que sin duda nos ayudará en el proceso de obtención de las variables candidatas para el proceso de regresión. 
+
+Vamos a ver estas correlaciones de una manera un poco más visual:
+
+```{r}
+library(corrplot)
+M <- cor(autompg8)
+corrplot(M, method = "circle")
+```
+
+Con colores es mucho más evidente lo que antes se podía ver de manera númerica y sin lugar a dudas tenemos variables muy correlacionadas e interesantes para nuestro proceso de regresión. 
+
+En este punto, que ya tenemos cierta idea de que variables pueden ser interesantes, nos centraremos en realizar algún gráfico más sobre las mismas, para intentar de obtener información relevante para procesos posteriores. Para ello cambiaremos el año, el origen y los cilindros a factor, ya que aunque son variables numéricas nos aportan más potencia a la hora de hacer gráficos de esta manera.
+
+```{r}
+autompg8$Origin<-as.factor(autompg8$Origin)
+autompg8$Cylinders<-as.factor(autompg8$Cylinders)
+autompg8$Model_year<-as.factor(autompg8$Model_year)
+```
+
+Primero vamos a intentar ver la distribución del consumo en función del número de cilindros:
+
+```{r}
+library(ggplot2)
+ggplot(autompg8, aes(Mpg,fill=Cylinders))+geom_histogram(binwidth=1)
+```
+
+Vemos que los coches de 4 cilindros además de ser los más comunes, son los que menos consumo ofrecen, por orto lado, los coches de 6 y 8 cilindros consumen bastante. Concretamente, todos los coches cuyo nivel de **Mpg** está por debajo de 16, es decir, consumen mucho, son de 8 cilindros. 
+
+Vamos a ver también, el mismo gráfico en función del año y el origen.  
+
+```{r}
+library(ggplot2)
+ggplot(autompg8, aes(Mpg,fill=Model_year))+geom_histogram(binwidth=1)
+ggplot(autompg8, aes(Mpg,fill=Origin))+geom_histogram(binwidth=1)
+```
+
+
+Podemos ver como los años de los coches se distribuyen en igual medida y como los coches más modernos consumen menos. En cuanto al origin, vemos que el origen mayoritario es de tipo 1 y tambien son estos coches los que más tendencia tienen a consumos altos frente a los de tipo 2 y 3. Si superpusieramos ambos gráficos podriamos comprobar como los coches más antiguos se solapan con el origen de tipo 1 y los más nuevos con los origenes 2 y 3. 
+
+Por último vamos a pasar a obtener gráficos de las distribuciones de las variables, ya que es un dato interesante a la hora de hacer predicciones. 
+
+
+```{r}
+par(mfrow = c(2, 2))
+hist(as.numeric(autompg8$Cylinders))
+hist(autompg8$Displacement)
+hist(autompg8$Horse_power)
+hist(autompg8$Weight)
+```
+
+
+
+```{r}
+par(mfrow = c(2, 2))
+hist(autompg8$Acceleration)
+hist(as.numeric(autompg8$Model_year))
+hist(as.numeric(autompg8$Origin))
+hist(autompg8$Mpg)
+```
+
+Vemos como Acceleration y Mpg, tienen distribuciones cerca de la normal pero otras como HorsePower o displacement o Weight están desplazadas muy a la izquierda, esto era de esperar ya que habra pocos coches con mucha potencia o con mucho peso, sino que la mayoria se situará cerca de los valores iniciales. 
+
+Por último realizaremos gráficos de cajas sobre el dataset, para hacernos una última idea de las distribución de sus datos y la presencia o no de posibles outliers. Primero normalizaremos los datos. 
+
+```{r}
+normalizados <- preProcess(autompg8, method = "range")
+autompg8<-predict(normalizados, autompg8)
+boxplot(autompg8[,c( "Displacement", "Horse_power","Weight","Acceleration", "Mpg")])
+```
+
+Vemos que están distribuidas bastante homogeneamente y que tenemos tanto outliers por encima como por debajo en las variables de aceleración y caballos de potencia. 
 
 ### 4.4 Resumen y descripción del proceso de Análisis Exploratorio del dataset autoMPG8. 
 
+
+El proceso de análisis exploratorio de datos sobre el dataset autompg8, ha sido algo más sencillo que el de pima, debido a que este, no presentaba valores perdidos ni ninguna necesidad especial de pre-procesado de datos aparte de la normalización de los mismos. 
+
+Por medio de gráficos, hemos obtenido informacion sobre la interación de las variables independientes con la dependiente. Esta información será muy útil de cara al proceso de regresión posterior. 
