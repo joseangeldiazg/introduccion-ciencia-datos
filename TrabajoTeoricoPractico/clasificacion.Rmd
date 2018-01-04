@@ -1,0 +1,198 @@
+---
+title: "Clasificación"
+author: "joseangeldiazg"
+date: "4/1/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Clasificación 
+
+En este punto, aplicaremos técnicas de clasificación en el dataset pima, que hemos estudiado y procesado en el punto 3, de análisis exploratorio de datos. Nuestro problema, pasará por tanto en predecir, la diabetes sobre nuestro dataset, en función de las variables estudiadas anteriormente y usando las siguientes técnicas:
+
+1. Utilizar el algoritmo k-NN probando con diferentes valores de k. Elegir el que mejor se considere para el problema. 
+2. Utilizar el algoritmo LDA para clasificar.
+3. Utilizar el algoritmo QDA para clasificar.
+4. Comparar los resultados de los tres algoritmos.
+
+
+El primer paso será por tanto, obtener un conjunto de test y otro de entrenamiento sobre el dataset, aunque en el dataset no hemos apreciado ninguna coherencia en su ordenación, igualmente, aplicaremos sufffle, ya que como estámos ante un problema no balanceado, si no lo hacemos podemos encontrarnos con que sin querer hemos acentuado este problema. 
+
+
+```{r}
+n <- nrow(pima)
+shuffled_pima<- pima[sample(n), ]
+train_indices <- 1:round(0.8 * n)
+train <- shuffled_pima[train_indices, ]
+test_indices <- (round(0.8 * n) + 1):n
+test <- shuffled_pima[test_indices, ]
+
+str(train)
+str(test)
+```
+
+En este punto, volveremos a usar un gráfico de barras e histogramas para ver si nuestra division ha sido apropiada. 
+
+
+```{r}
+par(mfrow = c(1, 2))
+barplot(table(train$Class), main = "Train Class Distribution")
+barplot(table(test$Class),  main = "Test Class Distribution")
+```
+
+Vemos como se han dividido bastante bien y no hemos acentuado el problema. Ahora podemos empezar a aplicar técnicas de clasificación, para ello, nos basaremos en el paquete **caret**.
+
+
+## Clasificación con KNN
+
+
+Al usar este algoritmo uno de los pasos mas complicados es la elección del valor de k apropiado para nuestro modelo. Por suerte, **caret**, incluye la opción del parámetro **tuneGrid** con el que podemos comparara varios valores de k para nuestro modelo y coger automaticamente el mejor. Igualmente, realizaremos un estudio basado en gráficos para ver como se comporta el valor de K, para ello, lo variaremos entre 1 y 20. 
+``
+
+
+
+```{r}
+control <- trainControl(method="repeatedcv", number=10, repeats=10)
+
+x<-train[,-9]
+y<-train[,9]
+y=as.factor(y)
+
+knnModelk1 <- train(x, y,  method = "knn", trControl=control, tuneGrid = data.frame(.k=1))
+knnModelk2 <- train(x, y,  method = "knn",  trControl=control, tuneGrid = data.frame(.k=2))
+knnModelk3 <- train(x, y,  method = "knn", trControl=control, tuneGrid = data.frame(.k=3))
+knnModelk4 <- train(x, y,  method = "knn", trControl=control, tuneGrid = data.frame(.k=4))
+knnModelk5 <- train(x, y,  method = "knn",  trControl=control, tuneGrid = data.frame(.k=5))
+knnModelk6 <- train(x, y,  method = "knn",  trControl=control, tuneGrid = data.frame(.k=6))
+knnModelk7 <- train(x, y,  method = "knn",  trControl=control, tuneGrid = data.frame(.k=7))
+knnModelk8 <- train(x, y,  method = "knn",  trControl=control, tuneGrid = data.frame(.k=8))
+knnModelk9 <- train(x, y,  method = "knn",  trControl=control, tuneGrid = data.frame(.k=9))
+knnModelk10 <- train(x, y,  method = "knn",  trControl=control, tuneGrid = data.frame(.k=10))
+knnModelk11 <- train(x, y,  method = "knn",  trControl=control, tuneGrid = data.frame(.k=11))
+knnModelk12 <- train(x, y,  method = "knn", trControl=control, tuneGrid = data.frame(.k=12))
+knnModelk13 <- train(x, y,  method = "knn",  trControl=control, tuneGrid = data.frame(.k=13))
+knnModelk14 <- train(x, y,  method = "knn", trControl=control, tuneGrid = data.frame(.k=14))
+knnModelk15 <- train(x, y,  method = "knn", trControl=control, tuneGrid = data.frame(.k=15))
+knnModelk16 <- train(x, y,  method = "knn",  trControl=control, tuneGrid = data.frame(.k=16))
+knnModelk17 <- train(x, y,  method = "knn",  trControl=control, tuneGrid = data.frame(.k=17))
+knnModelk18 <- train(x, y,  method = "knn",  trControl=control, tuneGrid = data.frame(.k=18))
+knnModelk19 <- train(x, y,  method = "knn",  trControl=control, tuneGrid = data.frame(.k=19))
+knnModelk20 <- train(x, y,  method = "knn",  trControl=control, tuneGrid = data.frame(.k=20))
+```
+
+Comparamos ahora estadisticamente los resultados para ver cual se ha comportado mejor en las iteraciones del modelo. 
+
+```{r}
+results <- resamples(list(K1=knnModelk1, K2=knnModelk2,K3=knnModelk3, K4=knnModelk4, K5=knnModelk5, K6=knnModelk6,K7=knnModelk7, K8=knnModelk8, K9=knnModelk9, K10=knnModelk10, K11=knnModelk11, K12=knnModelk12, K13=knnModelk13, K14=knnModelk14, K15=knnModelk15, K16=knnModelk16, K17=knnModelk17, K18=knnModelk18, K19=knnModelk19, K20=knnModelk20))
+summary(results)
+```
+
+Al ser tantos modelos entrenados, será mejor usar una representación gráfica para ver el comportamiento de los distintos valores de K. 
+
+```{r}
+bwplot(results)
+```
+
+Parece ser que K=12 o K=9 tienen buenos resultados, y que los modelos no tienen demasiados outliers ni por encima ni por debabajo, al menos en la evaluación basada en Accuracy, distribuyendose los resultados de una manera bastante homogénea. De igual manera, echa esta comparación entre valores de K, a la hora de entrenar nuestro modelo, dejaremos la seleccion de este valor al parámetro **tuneGrid**.
+
+```{r}
+control <- trainControl(method="cv")
+knnFinalModel <- train(x, y, method="knn", metric="Accuracy", trControl=control,tuneGrid = data.frame(.k=1:20))
+knnFinalModel
+```
+
+Vemos como el valor de K escogido por el algorítmo es 11, muy similar a los que habíamos predicho en el proceso de comparación del mejor valor de K. 
+
+Llegados a este punto solo nos quedará usar el conjunto de test para predecir el funcionamiento del modelo creado. 
+
+```{r}
+knnPred <- predict(knnFinalModel, newdata = test)
+postResample(pred = knnPred, obs = as.factor(test[,9]))
+```
+
+
+Al finalizar nuestro proceso obtenemos un **0.6797386 de accuracy** en test, sin duda podría mejorarse aplicando técnicas de **imbalance learning** o técnicas más robustas de clasificación que el algoritmo KNN, aunque esto lo dejaremos para trabajos futuros. En este punto, retomaremos la partición en la que obviamos todos los **valores perdidos^* para comprobar el el funcionamiento de la predicción de estos.
+
+Vamos a realizar por tanto el proceso de clasificación basado en KNN con el dataset **pimacopy** que tan solo 392 observaciones pero sin valores perdidos y todos los datos son reales, es decir, no hemos realizado predicción de los mismos. 
+
+
+```{r}
+#Dividimos en test y training
+n <- nrow(pimacopy)
+shuffled_pima<- pimacopy[sample(n), ]
+train_indices <- 1:round(0.8 * n)
+trainCopy <- shuffled_pima[train_indices, ]
+test_indices <- (round(0.8 * n) + 1):n
+testCopy <- shuffled_pima[test_indices, ]
+str(trainCopy)
+str(testCopy)
+
+#Configuramos variables para el modelo
+
+control <- trainControl(method="cv")
+x<-trainCopy[,-9]
+y<-trainCopy[,9]
+y=as.factor(y)
+
+#Entrenamos el modelo
+
+knnFinalModel <- train(x, y, method="knn", metric="Accuracy", trControl=control,tuneGrid = data.frame(.k=1:20))
+knnFinalModel
+```
+
+
+```{r}
+knnPred <- predict(knnFinalModel, newdata = testCopy)
+postResample(pred = knnPred, obs = as.factor(testCopy[,9]))
+```
+
+Parece que obtenemos mejores resultados de lo esperado por lo que vamos a indagar más y cambiaremos la evaluación de los dos modelos a evaluación ROC menos sensitiba a los sesgos en problemas no balanceados. Pasaremos a evaluar estos dos modelos basandonos en el área bajo la curva ROC. 
+
+
+```{r}
+control <- trainControl(method="repeatedcv", number=10, repeats=10, classProbs = TRUE, summaryFunction=twoClassSummary)
+
+#Configuramos variables para el modelo
+
+x<-train[,-9]
+y<-train[,9]
+y=as.factor(y)
+levels(y)<-c("X0","X1")
+
+x2<-trainCopy[,-9]
+y2<-trainCopy[,9]
+y2=as.factor(y2)
+levels(y2)<-c("X0","X1")
+
+
+#Entrenamos los modelos
+
+knnFinalModelPrediccionMV <- train(x, y, method="knn", metric="ROC", trControl=control, tuneGrid = data.frame(.k=1:20))
+
+knnFinalModelEliminacionMV <- train(x2, y2, method="knn", metric="ROC", trControl=control, tuneGrid = data.frame(.k=1:20))
+
+#Los comparamos 
+
+results <- resamples(list(PredicciónValoresPerdidos=knnFinalModelPrediccionMV, EliminaciónValoresPerdidos=knnFinalModelEliminacionMV))
+summary(results)
+bwplot(results)
+```
+
+Vemos como estábamos en lo acertado, y si nos basamos en la evaluación ROC, nuestro proceso de predicción de valores perdidos ha funcionado bastante bien, frente a la eliminación de los mismos. Los buenos resultados obtenidos en por el modelo knn usando solo los 392 muestras sin ningun valor perdido seguramente estén debidos a que la proporción de la clase mayoritaria en test sea alta en relación a la minoritaria y por tanto la evaluación basada en **accuracy** no es la más apropiada. 
+
+
+
+## LDA 
+
+
+## QDA 
+
+
+## Comparación entre los tres métodos
+
+
+
+
