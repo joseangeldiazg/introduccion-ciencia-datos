@@ -15,14 +15,14 @@ knitr::opts_chunk$set(echo = TRUE)
 La práctica final de la asignatura *Introducción a la Ciencia de Datos*, requiere de:
 
 * Aplicación de técnicas de estadística descriptiva y análisis exploratorio de datos sobre los datasets que se estudiarán en los puntos siguientes.
-* Estudio de técnicas de clasificación sobre un dataset especifico para clasificación. 
+* Estudio de técnicas de clasificación sobre un dataset específico para clasificación. 
 * Estudio de técnicas de regresión sobre un dataset específico para regresión. 
 
 En esta primera parte, nos centraremos en el primer punto. Para ello, lo primero que debemos hacer es conocer los datasets, para saber que tipo de datos manejamos y a que contexto o problema real pertenecen. 
 
 ### Pima
 
-Los datos de este dataset, corresponden a datos de pacientes proporcionados por el Instituto Nacional de Diabetes, su objetivo, es predecir cunando un paciente tendrá o no diabetes en función de ciertas medidas de diagnóstico. 
+Los datos de este dataset, corresponden a datos de pacientes proporcionados por el Instituto Nacional de Diabetes, su objetivo, es predecir cuando un paciente tendrá o no diabetes en función de ciertas medidas de diagnóstico. 
 
 
 ### AutoMPG8
@@ -32,7 +32,7 @@ Es un dataset usado en problemas regresión. En los que el objetivo está en pre
 
 ## 2. Lectura de los datasets
 
-Los datasets ofrecidos en la web de la asignatura están en formato Keel, por lo que antes de proceder a trabajar con ellos deberemos cargarlos en Rstudio. Para ello procederemos como sigue:
+Los datasets ofrecidos en la web de la asignatura están en formato **Keel**, por lo que antes de proceder a trabajar con ellos deberemos cargarlos en Rstudio. Para ello, procederemos como sigue:
 
 
 ```{r}
@@ -57,14 +57,14 @@ head(pima)
 
 ## 3. Exploración del dataset Pima
 
-El primer paso para enfrentarnos a un dataset, será comprender que es cada una de las variables. En este caso tendremos que usar fuentes de información externas ya que no es fácil de intuir. Tras diversas búsquedas por internet podemos concluir que todo el dataset corresponde a mujeres y las caracteristicas representan:
+El primer paso para enfrentarnos a un dataset, será comprender qué es cada una de las variables. En este caso tendremos que usar fuentes de información externas ya que no es fácil de intuir. Tras diversas búsquedas por internet podemos concluir que todo el dataset corresponde a mujeres y las características representan:
 
 **Preg**: Número de embarazos. 
 **Plas**: Concentración de plasma de glucosa. 
 **Pres**: Presión arterial. 
 **Skin**: Espesor de la piel en el triceps en mm. 
 **Insu**: Insulina. 
-**Mass**: Indice de masa corporal. 
+**Mass**: Índice de masa corporal. 
 **Pedi**: Función Pedigree de la Diabetes, mide el componente hereditario. 
 **Age**:  Edad de la paciente. 
 **Class**: Salida, nos dice si tiene o no diabetes.
@@ -105,8 +105,7 @@ summary(pima)
 
 Podemos ver como la distribuciones de las medidas de dispersión de las variables exceptuando algunas están en rangos similares,lo que nos facilitará la representación y estudio de las mismas gráficamente, aunque quizá igualmente necesitemos normalizar los datos, ya que hay picos muy altos por arriba en bastantes variables como en **Pedi** o en **Insu**, donde además, tenemos un número tal de valores perdidos que necesitará probablemente ser imputado o predicho con algun método de regresión. 
 
-Por último usaremos la funcion describe del paquete Hmisc, para ver si podemos obtener más información. 
-
+Por último usaremos la función describe del paquete Hmisc, para ver si podemos obtener más información.
 
 ```{r}
 library (Hmisc)
@@ -115,7 +114,7 @@ describe(pima)
 
 ### 3.3 Visualización del dataset Pima. 
 
-Una vez llgados a este punto, ya tenemos bastante información sobre los datos con los que estamos trabajando. Pero, intentaremos ir un poco más allá en el análisis del mismo con ciertos gráficos. 
+Una vez llegados a este punto, ya tenemos bastante información sobre los datos con los que estamos trabajando. Pero, intentaremos ir un poco más allá en el análisis del mismo con ciertos gráficos. 
 
 Lo primero será aplicar un **scatter plot** con el que podremos ver si existen correlaciones entre las variables.
 
@@ -123,7 +122,7 @@ Lo primero será aplicar un **scatter plot** con el que podremos ver si existen 
 pairs(~.,data=pima, main="Scatterplot")
 ```
 
-Parece ser que no hay correlaciones entre las variables, exceptuando Skin y Mass que parecen estár correlacionadas, algo que es obvio y trivial pues en la mayoría de los casos más masa corporal indicará un mayor grosor de la piel en los puntos de medida. 
+Parece ser que no hay correlaciones entre las variables, exceptuando **Skin** y **Mass** que parecen estár correlacionadas, algo que es obvio y trivial pues en la mayoría de los casos más masa corporal indicará un mayor grosor de la piel en los puntos de medida. 
 
 Dado que tenemos valores perdidos, usaremos histogramas sobre las variables, además de para hacernos una idea visual de su distribución, para tenerla en cuenta en el punto de imputación de valores perdidos y chequear que esta distribución actual, no se pierde al imputar estos. 
 
@@ -235,7 +234,7 @@ Vemos como las distribuciones se mantienen y por tanto nuestro proceso parece ha
 pima[,c("Plas","Pres","Skin","Insu","Mass")]<-pimacomplete[,c("Plas","Pres","Skin","Insu","Mass")]
 ```
 
-Una vez imputados los valores perdidos, podemos volver a comprobar las correlaciones de las variables con el paquete corrplot,a ver si hay cambios o podemos obtener mejor informacion del dataset que el que obtuvimos en procesos anteriores. 
+Una vez imputados los valores perdidos, podemos volver a comprobar las correlaciones de las variables con el paquete corrplot, a ver si hay cambios o podemos obtener mejor información del dataset que el que obtuvimos en procesos anteriores. 
 
 ```{r}
 library(corrplot)
@@ -270,9 +269,11 @@ Vemos que tenemos bastantes datos anómalos en nuestro data set y que las distri
 
 ### 3.4 Resumen y descripción del proceso de Análisis Exploratorio del dataset Pima. 
 
-En este punto, haremos un resumen del estudio de los datos y proceso. En el primer punto hemos estudiado los datos tal y como nos llegan, además de ingadar en el significado de cada una de las variables, esto nos ha llevado a encontrar datos anomalos con valor 0, claramente valores perdidos que hemos imputado con una predicción en puntos anteriores, ya que al eliminarlos, el dataset se quedaba muy pobre. Una vez realizada esta imputacion, se ha realizado un estudio de las distribuciones, y se ha comparado con las distribuciones de las variables antes de la predición de estos valores pedidos para comprobar que no se han generado valores anómalos. Hablando de preprocesado, hemos pasado todas la variables a numéricas y normalizado, para favorecer procesos de clasificación basados en distancias y la representacion gráfica de las variables con gráficos de cajas, con el fin de obtener informacion sobre posibles datos anómalos en la muestra. 
+En este punto, haremos un resumen del estudio de los datos y proceso. En el primer punto hemos estudiado los datos tal y como nos llegan, además de indagar en el significado de cada una de las variables, esto nos ha llevado a encontrar datos anómalos con valor 0, claramente valores perdidos que hemos imputado con una predicción en puntos anteriores, ya que al eliminarlos, el dataset se quedaba muy pobre. Una vez realizada esta imputación, se ha realizado un estudio de las distribuciones, y se ha comparado con las distribuciones de las variables antes de la predición de estos valores pedidos para comprobar que no se han generado valores anómalos.
 
-En cuanto a la visualizacion de datos, aparte de los gráficos anteriormente citados, se han usado: 
+Hablando de preprocesado, hemos pasado todas la variables a numéricas y normalizado, para favorecer procesos de clasificación basados en distancias y la representacion gráfica de las variables con gráficos de cajas, con el fin de obtener informacion sobre posibles datos anómalos en la muestra. 
+
+En cuanto a la **visualizacion de datos**, aparte de los gráficos anteriormente citados, se han usado: 
 
 - Gráficos de barras para comparar la distribución de clases, con lo que se ha descubierto que estamos ante un problema de datos no balanceados. 
 - Histogramas para comparar y ver distribuciones. 
@@ -286,7 +287,7 @@ Al igual que hicimos anteriormente con el dataset **pima**, antes de comenzar a 
 **Displacement**: Es una medida de longitud, pero no se ha conseguido ubicarla a que corresponde ni en qué unidad está.
 **Horse_power**: Son los caballos de potencia del vehículo. 
 **Weight**: Es el peso del coche. 
-**Acceleration**: Es la aceleracion del coche. 
+**Acceleration**: Es la aceleración del coche. 
 **Model_year**: El año de fabricación del coche. 
 **Origin**: Origen del coche, creo que corresponde a regiones.
 **Mpg**: Miles Per Gallon, es el consumo del coche, y es la variable dependiente en nuestro problema. La que tendremos que predecir por medio de regresión, debemos tener en cuenta que valores más pequeños de este valor indican más consumos, es decir, con un galón se recorren menos millas. 
@@ -379,7 +380,9 @@ ggplot(autompg8, aes(Mpg,fill=Origin))+geom_histogram(binwidth=1)
 ```
 
 
-Podemos ver como los años de los coches se distribuyen en igual medida y como los coches más modernos consumen menos. En cuanto al origin, vemos que el origen mayoritario es de tipo 1 y tambien son estos coches los que más tendencia tienen a consumos altos frente a los de tipo 2 y 3. Si superpusieramos ambos gráficos podriamos comprobar como los coches más antiguos se solapan con el origen de tipo 1 y los más nuevos con los origenes 2 y 3. 
+Podemos ver como los años de los coches se distribuyen en igual medida y como los coches más modernos consumen menos. En cuanto al origin, vemos que el origen mayoritario es de tipo 1 y también son estos coches los que más tendencia tienen a consumos altos frente a los de tipo 2 y 3.
+
+Si superpusieramos ambos gráficos podríamos comprobar como los coches más antiguos se solapan con el origen de tipo 1 y los más nuevos con los origenes 2 y 3. 
 
 Por último vamos a pasar a obtener gráficos de las distribuciones de las variables, ya que es un dato interesante a la hora de hacer predicciones. 
 
@@ -402,7 +405,7 @@ hist(as.numeric(autompg8$Origin))
 hist(autompg8$Mpg)
 ```
 
-Vemos como Acceleration y Mpg, tienen distribuciones cerca de la normal pero otras como HorsePower o displacement o Weight están desplazadas muy a la izquierda, esto era de esperar ya que habra pocos coches con mucha potencia o con mucho peso, sino que la mayoria se situará cerca de los valores iniciales. 
+Vemos como **Acceleration y Mpg**, tienen distribuciones cerca de la normal pero otras como HorsePower o displacement o Weight están desplazadas muy a la izquierda, esto era de esperar ya que habrá pocos coches con mucha potencia o con mucho peso, sino que la mayoría se situará cerca de los valores iniciales. 
 
 Por último realizaremos gráficos de cajas sobre el dataset, para hacernos una última idea de las distribución de sus datos y la presencia o no de posibles outliers. Primero normalizaremos los datos. 
 
@@ -417,6 +420,6 @@ Vemos que están distribuidas bastante homogeneamente y que tenemos tanto outlie
 ### 4.4 Resumen y descripción del proceso de Análisis Exploratorio del dataset autoMPG8. 
 
 
-El proceso de análisis exploratorio de datos sobre el dataset autompg8, ha sido algo más sencillo que el de pima, debido a que este, no presentaba valores perdidos ni ninguna necesidad especial de pre-procesado de datos aparte de la normalización de los mismos. 
+El proceso de análisis exploratorio de datos sobre el dataset **autompg8**, ha sido algo más sencillo que el de pima, debido a que este, no presentaba valores perdidos ni ninguna necesidad especial de pre-procesado de datos aparte de la normalización de los mismos. 
 
-Por medio de gráficos, hemos obtenido informacion sobre la interación de las variables independientes con la dependiente. Esta información será muy útil de cara al proceso de regresión posterior. 
+Por medio de gráficos, hemos obtenido información sobre la interación de las variables independientes con la dependiente. Esta información será muy útil de cara al proceso de regresión posterior. 
