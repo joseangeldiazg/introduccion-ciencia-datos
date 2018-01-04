@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Clasificación 
+## 5 Clasificación 
 
 En este punto, aplicaremos técnicas de clasificación en el dataset pima, que hemos estudiado y procesado en el punto 3, de análisis exploratorio de datos. Nuestro problema, pasará por tanto en predecir, la diabetes sobre nuestro dataset, en función de las variables estudiadas anteriormente y usando las siguientes técnicas:
 
@@ -46,7 +46,7 @@ barplot(table(test$Class),  main = "Test Class Distribution")
 Vemos como se han dividido bastante bien y no hemos acentuado el problema. Ahora podemos empezar a aplicar técnicas de clasificación, para ello, nos basaremos en el paquete **caret**.
 
 
-## Clasificación con KNN
+## 5.1 Clasificación con KNN
 
 
 Al usar este algoritmo uno de los pasos mas complicados es la elección del valor de k apropiado para nuestro modelo. Por suerte, **caret**, incluye la opción del parámetro **tuneGrid** con el que podemos comparara varios valores de k para nuestro modelo y coger automaticamente el mejor. Igualmente, realizaremos un estudio basado en gráficos para ver como se comporta el valor de K, para ello, lo variaremos entre 1 y 20. 
@@ -183,13 +183,13 @@ bwplot(results)
 
 Vemos como estábamos en lo acertado, y si nos basamos en la evaluación ROC, nuestro proceso de predicción de valores perdidos ha funcionado bastante bien, frente a la eliminación de los mismos. Los buenos resultados obtenidos en por el modelo knn usando solo los 392 muestras sin ningun valor perdido seguramente estén debidos a que la proporción de la clase mayoritaria en test sea alta en relación a la minoritaria y por tanto la evaluación basada en **accuracy** no es la más apropiada. 
 
-## LDA 
+## 5.2 LDA 
 
 
-## QDA 
+## 5.3  QDA 
 
 
-## Comparación entre los tres métodos
+## 5.4  Comparación entre los tres métodos
 
 
 

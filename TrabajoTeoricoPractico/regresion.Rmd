@@ -1,0 +1,71 @@
+---
+title: "Regresión"
+author: "joseangeldiazg"
+date: "4/1/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 6 Regresión
+
+En este punto del trabajo final de la asignatura aplicaremos técnicas de regresión sobre los datos analizados en el punto 4, sobre el dataset **autompg8**. Concretamente se pide:
+
+1. Utilizar el algoritmo de regresión lineal simple sobre cada regresor (variable de entrada) para obtener los modelos correspondientes. Si el datasetR asignado incluye más de 5 regresores, seleccione de manera justificada los 5 que considere más relevantes. Una vez obtenidos los modelos, elegir el que considere más adecuado para su conjunto de datos según las medidas de calidad conocidas.
+
+2. Utilizar el algoritmo para regresión lineal múltiple. Justificar adecuadamente si el modelo obtenido aporta mejoras respecto al modelo elegido en el paso anterior (en este apartado tenga también en cuenta la consideración de posibles interacciones y no linealidad).
+
+3. Aplicar el algoritmo k-NN para regresión.
+
+4. Comparar los resultados de los dos algoritmos de regresión múltiple entre sí, y adicionalmente media
+
+
+## 6.1 Modelos lineales simples
+
+Vamos a construir modelos lineales simples para nuestro dataset. Para ello, nos vasaremos en las cinco variables más correlacionadas negativa o positivamente nuestra variable objetivo. Estas son:
+
+- Cylinders
+- Displacement
+- Horse_power
+- Weight
+- Model_year
+
+Crearemos los modelos e interpretaremos sus resultados. 
+
+```{r}
+fit1=lm(autompg8$Mpg~as.numeric(autompg8$Cylinders))
+summary(fit1)
+plot(autompg8$Mpg~as.numeric(autompg8$Cylinders))
+abline(fit1,col="red") 
+```
+
+```{r}
+fit2=lm(autompg8$Mpg~autompg8$Displacement)
+summary(fit2)
+plot(autompg8$Mpg~autompg8$Displacement)
+abline(fit2,col="red") 
+```
+
+```{r}
+fit3=lm(autompg8$Mpg~autompg8$Horse_power)
+summary(fit3)
+plot(autompg8$Mpg~autompg8$Horse_power)
+abline(fit3,col="red") 
+```
+
+```{r}
+fit4=lm(autompg8$Mpg~autompg8$Weight)
+summary(fit4)
+plot(autompg8$Mpg~autompg8$Weight)
+abline(fit4,col="red") 
+```
+
+
+```{r}
+fit5=lm(autompg8$Mpg~as.numeric(autompg8$Model_year))
+summary(fit5)
+plot(autompg8$Mpg~as.numeric(autompg8$Model_year))
+abline(fit5,col="red") 
+```
