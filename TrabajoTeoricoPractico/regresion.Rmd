@@ -106,5 +106,42 @@ points(autompg8$Horse_power,fitted(fit8),col="red",pch=20)
 
 Vemos como estábamos en lo acertado y ahora, hemos ajustado mucho más nuestro modelo llegando con el modelo basado en la variable **Weight** a tener un R-squared de **0.7151**. 
 
+Ahora vamos a generar un modelo basado en regresión lineal múltiple. Para ello, usaremos las 5 variables predictoras que seleccionamos en el proceso de selección de variables. Este modelo, es "secuencial" por lo que iremos añadiendo variables en pequeños pasos para ir comproabando la interacción entre estas. 
 
 
+```{r}
+fit9<-lm(autompg8$Mpg~autompg8$Weight+autompg8$Displacement)
+summary(fit9)
+
+fit10<-lm(autompg8$Mpg~autompg8$Weight+autompg8$Displacement+autompg8$Horse_power)
+summary(fit10)
+```
+
+Vemos como acorde al **p-value**, en este modelo, la variable **Displacement** deja de ser relevante para predecir Mpg, por lo que la obviaremos y dejaremos solo las otras dos. 
+
+```{r}
+fit12<-lm(autompg8$Mpg~autompg8$Weight+autompg8$Horse_power)
+summary(fit12)
+```
+
+Vemos como hemos mejorado alguna milésima, y además, ahora Horse_power, recupera relevancia. Seguiremos añadiendo variables a nuestro modelo multiple para ver si mejora. 
+
+```{r}
+fit13<-lm(autompg8$Mpg~autompg8$Weight+autompg8$Horse_power+autompg8$Model_year+autompg8$Origin)
+summary(fit13)
+```
+
+Parece que al al añadir nuestras variables **Model_year** y **Origin**, el modelo mejora bastante.Por último, vamos a probar que pasaría si usaramos todas las variables del modelo y que pasaría si al modelo fit13, aplicaramos las transformaciones de no linealidad vistas al inicio de esta sección. 
+
+
+```{r}
+fit14<-lm(Mpg~.,data=autompg8)
+summary(fit14)
+```
+
+Parece que obtenemos grandes resultados y una mejora muy clara respecto a usar solo algunas variables, vemos como las variables que consideramos importantes siguen siendolo. Comprobaremos ahora que pasaría si aplicaramos las transformaciones. 
+
+```{r}
+fit15<-lm(Mpg~Cylinders+Displacement+I(Displacement^2)+Horse_power+I(Horse_power^2)+Weight+I(Weight^2)+Model_year+Model_year,data=autompg8)
+summary(fit15)
+```
