@@ -41,6 +41,10 @@ plot(autompg8$Mpg~as.numeric(autompg8$Cylinders))
 abline(fit1,col="red") 
 ```
 
+Vemos que nuestro modelo no ajusta del todo bien, pero ya se obtienen valores de error aceptables que sin lugar a dudas al ser combinados en modelos más complejos ofrecerán buenos resultados. 
+
+Seguiremos probando ahora con las demás variables correlacionadas con la variable dependiente. 
+
 ```{r}
 fit2=lm(autompg8$Mpg~autompg8$Displacement)
 summary(fit2)
@@ -62,10 +66,45 @@ plot(autompg8$Mpg~autompg8$Weight)
 abline(fit4,col="red") 
 ```
 
-
 ```{r}
 fit5=lm(autompg8$Mpg~as.numeric(autompg8$Model_year))
 summary(fit5)
 plot(autompg8$Mpg~as.numeric(autompg8$Model_year))
 abline(fit5,col="red") 
 ```
+
+Vemos que ajustan bastante bien, pero cabe destacar que si pudieramos obtener un modelo no lineal seguramente conseguiriamos eliminar el error en gran medida, ya que una curva ajustaría mucho mejor con las anteriores variables, de igual modo, basandonos en el valor del R-Squared (ya que solo estamos usando una variable predictora), nuestra candidata sería el modelo **fit4**, donde hemos tenido en cuenta la variable **Weigth** para inferir la variable objetivo **Mpg** y obtenemos valor de R cuadrado de **0,695**.
+
+
+
+## 6.2 Modelos lineales múltiples y no linealidad. 
+
+Tal y como vimos en el punto anterior, podemos concluir que un modelo no lineal ajuste mejor con nuestras variables, por ello probaremos este con las variables **Weight**, **Horse_power**, **Displacement**.
+
+```{r}
+fit6<-lm(autompg8$Mpg~autompg8$Weight+I(autompg8$Weight^2))
+summary(fit6)
+plot(autompg8$Mpg~autompg8$Weight)
+points(autompg8$Weight,fitted(fit6),col="red",pch=20)
+```
+
+
+```{r}
+fit7<-lm(autompg8$Mpg~autompg8$Displacement+I(autompg8$Displacement^2))
+summary(fit7)
+plot(autompg8$Mpg~autompg8$Displacement)
+points(autompg8$Displacement,fitted(fit7),col="red",pch=20)
+```
+
+
+```{r}
+fit8<-lm(autompg8$Mpg~autompg8$Horse_power+I(autompg8$Horse_power^2))
+summary(fit8)
+plot(autompg8$Mpg~autompg8$Horse_power)
+points(autompg8$Horse_power,fitted(fit8),col="red",pch=20)
+```
+
+Vemos como estábamos en lo acertado y ahora, hemos ajustado mucho más nuestro modelo llegando con el modelo basado en la variable **Weight** a tener un R-squared de **0.7151**. 
+
+
+
