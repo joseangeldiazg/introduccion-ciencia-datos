@@ -19,7 +19,7 @@ En este punto del trabajo final de la asignatura aplicaremos técnicas de regres
 
 3. Aplicar el algoritmo k-NN para regresión.
 
-4. Comparar los resultados de los dos algoritmos de regresión múltiple entre sí, y adicionalmente media
+4. Comparar los resultados de los dos algoritmos de regresión múltiple entre sí, y adicionalmente mediante comparativas múltiples con un tercero (el modelo de regresión M5’, cuyos resultados ya están incluidos en las tablas de resultados disponibles).
 
 
 ## 6.1 Modelos lineales simples
@@ -124,7 +124,7 @@ fit12<-lm(autompg8$Mpg~autompg8$Weight+autompg8$Horse_power)
 summary(fit12)
 ```
 
-Vemos como hemos mejorado alguna milésima, y además, ahora Horse_power, recupera relevancia. Seguiremos añadiendo variables a nuestro modelo multiple para ver si mejora. 
+Al tener varias variables, debemos fijarnos en el valor de **Adjusted R-Squared**, donde vemos como hemos mejorado alguna milésima, y además, ahora Horse_power, recupera relevancia. Seguiremos añadiendo variables a nuestro modelo multiple para ver si mejora. 
 
 ```{r}
 fit13<-lm(autompg8$Mpg~autompg8$Weight+autompg8$Horse_power+autompg8$Model_year+autompg8$Origin)
@@ -142,6 +142,176 @@ summary(fit14)
 Parece que obtenemos grandes resultados y una mejora muy clara respecto a usar solo algunas variables, vemos como las variables que consideramos importantes siguen siendolo. Comprobaremos ahora que pasaría si aplicaramos las transformaciones. 
 
 ```{r}
-fit15<-lm(Mpg~Cylinders+Displacement+I(Displacement^2)+Horse_power+I(Horse_power^2)+Weight+I(Weight^2)+Model_year+Model_year,data=autompg8)
+fit15<-lm(Mpg~Cylinders+Displacement+I(Displacement^2)+Horse_power+I(Horse_power^2)+Weight+I(Weight^2)+Model_year,data=autompg8)
 summary(fit15)
 ```
+
+
+Obtenemos un valor de Adjusted R-Squared muy bueno del **0,8921**, que está aún lejos de valores de confianza aceptables pero que representa una gran mejora desde que creamos los primeros modelos simples. 
+
+## 6.3 K-NN para regresión. 
+
+En este punto utilizaremos validación cruzada con el algoritmo Knn sobre el dataset. Para ello, haremos uso de las particiones facilitadas en el dataset de KEEL. 
+
+```{r}
+require(kknn)
+setwd("/Users/joseadiazg/Desktop/MASTER CIENCIA DE DATOS/introduccion-ciencia-datos/datasets/DatasetsRegresion/autoMPG8/")
+
+nombre <- "autoMPG8"
+
+run_knn_fold <- function(i, x, tt = "test") 
+{
+  file <- paste(x, "-5-", i, "tra.dat", sep="")
+  x_tra <- read.csv(file, comment.char="@") 
+  file <- paste(x, "-5-", i, "tst.dat", sep="")
+  x_tst <- read.csv(file, comment.char="@")
+  In <- length(names(x_tra)) - 1 
+  names(x_tra)[1:In] <- paste ("X", 1:In, sep="") 
+  names(x_tra)[In+1] <- "Y"
+  names(x_tst)[1:In] <- paste ("X", 1:In, sep="")
+  names(x_tst)[In+1] <- "Y"
+  if (tt == "train") 
+  {
+    test <- x_tra
+  } 
+  else
+  {
+    test <- x_tst
+  }
+  fitMulti=kknn(Y~.,x_tra,test)
+  yprime=fitMulti$fitted.values
+  sum(abs(test$Y-yprime)^2)/length(yprime)
+}
+knnMSEtrain<-mean(sapply(1:5,run_knn_fold,nombre,"train")) 
+knnMSEtest<-mean(sapply(1:5,run_knn_fold,nombre,"test"))
+knnMSEtrain
+knnMSEtest
+```
+
+Vemos que los resultados son bastante buenos e incluso mejores que los obtenidos por nuestro modelo de regresión lineal. Esto constata la robusted de un algoritmo en aparicia sencillo como el K-NN. Cabe destacar tambien la diferencia entre test y train, pese a utilizar validación cruzada el algoritmo sobre ajusta en cierta medida. 
+
+## Comparación de modelos. 
+
+En este punto, compararemos los resultados de la salida del algoritmo Knn con validación cruzada y el modelo lineal múltiple, sobre el que aplicaremos también validación cruzada. Con estos resultados, y los obtenidos para otra serie de dataset, aplicaremos comparaciones usando los test de **Wilcoxon, Friedman** y **Holm**.
+
+
+```{r}
+setwd("/Users/joseadiazg/Desktop/MASTER CIENCIA DE DATOS/introduccion-ciencia-datos/datasets/DatasetsRegresion/autoMPG8/")
+nombre <- "autoMPG8"
+run_lm_fold <- function(i, x, tt = "test") 
+{
+  file <- paste(x, "-5-", i, "tra.dat", sep="")
+  x_tra <- read.csv(file, comment.char="@") 
+  file <- paste(x, "-5-", i, "tst.dat", sep="")
+  x_tst <- read.csv(file, comment.char="@")
+  In <- length(names(x_tra)) - 1 
+  names(x_tra)[1:In] <- paste ("X", 1:In, sep="") 
+  names(x_tra)[In+1] <- "Y"
+  names(x_tst)[1:In] <- paste ("X", 1:In, sep="")
+  names(x_tst)[In+1] <- "Y"
+  if (tt == "train") 
+  {
+    test <- x_tra
+  } 
+  else
+  {
+    test <- x_tst
+  }
+  fitMulti=lm(Y~.,x_tra)
+  yprime=predict(fitMulti,test)
+  sum(abs(test$Y-yprime)^2)/length(yprime)
+}
+lmMSEtrain<-mean(sapply(1:5,run_lm_fold,nombre,"train")) 
+lmMSEtest<-mean(sapply(1:5,run_lm_fold,nombre,"test"))
+lmMSEtrain
+lmMSEtest
+```
+
+
+Con estos resultados, sustituiremos los valores en las tablas de resultados de los demás conjuntos de datos y compararemos usando los tests. Primero compararemos usando Wilconxon, el algoritmo Knn (referencia por ofrecer mejores resultados) y Regresión. 
+
+Aunque los datos que más nos interesan son los de **test**, cargaremos y aplicaremos los test también en **training**, ya que es interesante su estudio de cara a obtener más informacion de fenomenos como el sobreajuste por ejemplo. Por tanto, primero debemos cargar los datos para train y para test. 
+
+```{r}
+resultadosTrain <- read.table("./comparaciones/regr_train_alumnos.csv")
+resultadosTest <- read.table("./comparaciones/regr_test_alumnos.csv")
+difsTrain <- (resultadosTrain[,2] - resultadosTrain[,1]) / resultadosTrain[,2]
+difsTest <- (resultadosTest[,2] - resultadosTest[,1]) / resultadosTest[,2]
+
+#Datos para train
+
+wilc_knn_ln_train <- cbind(ifelse (difsTrain<0, abs(difsTrain)+0.1, 0+0.1), ifelse (difsTrain>0, abs(difsTrain)+0.1, 0+0.1)) 
+
+colnames(wilc_knn_ln_train) <- c(colnames(resultadosTrain)[2], colnames(resultadosTrain)[1])
+head(wilc_knn_ln_train)
+
+#Datos para test
+
+wilc_knn_ln_test <- cbind(ifelse (difsTest<0, abs(difsTest)+0.1, 0+0.1), ifelse (difsTest>0, abs(difsTest)+0.1, 0+0.1)) 
+
+colnames(wilc_knn_ln_test) <- c(colnames(resultadosTest)[2], colnames(resultadosTest)[1])
+head(wilc_knn_ln_test)
+```
+
+
+Ahora podemos aplicar el test de Wilconxon. Para ello procedemos de la siguiente manera:
+
+
+```{r}
+KKNNvsLNtra <- wilcox.test(wilc_knn_ln_train[,1], wilc_knn_ln_train[,2], alternative = "two.sided", paired=TRUE) 
+KKNNvsLNtst <- wilcox.test(wilc_knn_ln_test[,1], wilc_knn_ln_test[,2], alternative = "two.sided", paired=TRUE) 
+
+RmasTest <- KKNNvsLNtst$statistic
+pvalueTest <- KKNNvsLNtst$p.value
+
+RmasTra <- KKNNvsLNtra$statistic
+pvalueTra <- KKNNvsLNtra$p.value
+
+KKNNvsLNtra <- wilcox.test(wilc_knn_ln_train[,2], wilc_knn_ln_train[,1], alternative = "two.sided", paired=TRUE) 
+KKNNvsLNtst <- wilcox.test(wilc_knn_ln_test[,2], wilc_knn_ln_test[,1], alternative = "two.sided", paired=TRUE) 
+
+RmenosTest <- KKNNvsLNtst$statistic
+RmenosTra <-  KKNNvsLNtra$statistic
+
+print("Resultados en Test:")
+RmasTest
+RmenosTest
+pvalueTest
+
+print("Resultados en Training:")
+RmasTra
+RmenosTra
+pvalueTra
+```
+
+
+Los resultados son discordantes. En test, no podríamos asegurar que existieran diferencias significativas entre los algoritmos, más bien, podriamos decir casi con total seguridad que son iguales, ya que el pvalue es muy alto. Por otro lado, en training ocurre lo contrario tenemos un p-value tan bajo que nos dice que los algoritmos son diferentes casi al 100% de seguridad, esto puede ser debido a que tenemos mucho sobreajuste con uno de los algoritmos que nos ofrece resultados muy buenos en training. 
+
+Vamos a comprar ahora los tres algoritmos usando el test de **Friedman**.
+
+```{r}
+test_friedmanTra <- friedman.test(as.matrix(resultadosTrain[,1:3]))
+test_friedmanTst <- friedman.test(as.matrix(resultadosTest[,1:3]))
+test_friedmanTra
+test_friedmanTst
+```
+
+Acorde al test de Friedman, y los valores de p-value observados cercanos a 0 tanto en training como en test, podemos concluir que existen diferencias significativas, al menos, entre dos algoritmos de los tres estudiados. En base a esta premisa, usaremos el test de **Holm** para discernir que está ocurriendo con estos algoritmos. 
+
+```{r}
+tam <- dim(resultadosTest[,1:3])
+groups <- rep(1:tam[2], each=tam[1])
+pairwise.wilcox.test(as.matrix(resultadosTest[,1:3]), groups, p.adjust = "holm", paired = TRUE)
+
+tam <- dim(resultadosTrain[,1:3])
+groups <- rep(1:tam[2], each=tam[1])
+pairwise.wilcox.test(as.matrix(resultadosTrain[,1:3]), groups, p.adjust = "holm", paired = TRUE)
+```
+
+
+En base a los datos de test, parece que el algorimo M5, es ciertamente mejor que los demás, aunque los resultados no son muy concluyebtes. Por otro lado, en base a los resultados de training, podemos comprar que el algoritmo M5 es mejor que el LM y KNN con pvalues de 0.0039, y 0.0067 frente a estos y que a su mismo tiempo, el algoritmo KNN está por delante del LM, con un valor de p-value de 0.0067.
+
+
+## 6.5 Resumen y conclusiones finales de los modelos de regresión. 
+
+
