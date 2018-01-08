@@ -1,0 +1,14 @@
+name: "Introduccion a la Ciencia de Datos"
+output_dir: "../docs"
+exclude: ["TrabajoTeoricoPractico.Rproj","comparaciones","README.md"]
+navbar:
+  title: "Programación para Ciencia de Datos con R"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "EDA"
+      href: casopractico.html
+    - text: "Clasificacion"
+      href: clasificacion.html
+    - text: "Regresion"
+      href: regresion.html

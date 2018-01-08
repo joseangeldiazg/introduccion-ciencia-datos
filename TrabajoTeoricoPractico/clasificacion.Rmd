@@ -185,12 +185,225 @@ Vemos como estábamos en lo acertado, y si nos basamos en la evaluación ROC, nu
 
 ## 5.2 LDA 
 
+En este punto vamos a estudiar el método de clasificación LDA. Para ello primero tenemos que comprobar ciertas premisas necesarias para el LDA:
+
+- La muestra es aleatoria: Esto lo damos por hecho. 
+- Cada variable predictora está distribuida normalmente.
+- Las variables predictoras tienen varianza común. 
+
+Para comprobar si están distribuidas normalmente  usaremos el test de Shapiro-Wilk. Aunque en nuestro proceso de EDA ya tuvimos en cuenta la distribución de las variables, ahora, lo comprobaremos de nuevo. 
+```{r}
+library(MASS)
+library(ISLR)
+shapiro.test(pima$Preg)
+shapiro.test(pima$Plas)
+shapiro.test(pima$Pres)
+shapiro.test(pima$Skin)
+shapiro.test(pima$Insu)
+shapiro.test(pima$Mass)
+shapiro.test(pima$Pedi)
+```
+
+Los altos valores de W, nos llevan a confirmar la hipótesis de partida del test en la que se considerán los datos distribuidos normalmente. Vamos a confirmarlo usándo los QQ-Plot. 
+
+```{r}
+qqnorm(y=pima$Preg)
+qqline(y=pima$Preg)
+
+qqnorm(y=pima$Plas)
+qqline(y=pima$Plas)
+
+qqnorm(y=pima$Pres)
+qqline(y=pima$Pres)
+
+qqnorm(y=pima$Skin)
+qqline(y=pima$Skin)
+
+qqnorm(y=pima$Insu)
+qqline(y=pima$Insu)
+
+qqnorm(y=pima$Mass)
+qqline(y=pima$Mass)
+```
+
+
+Vemos como el único gráfico que se desbia en cierta manera es el de la variable insulina, que fue el que menos valor nos dio en el test de Shapiro-Wilk. Algo que tampoco debería de parecernos fuera de lo normal, ya que tenemos entre manos un problema de predicción de diabetes y la insulina es un factor clave en esta, al menos en su tipo-1 (donde no se produce insulina) y en su tipo-2 (donde se produce insulina pero los organos Diana no son capaces de utilizarla), por lo que puede preveerse y admitirse ciertos valores discordantes en esta variable.  
+
+Por último comparamos que las variables predictoras tienen varianza común. 
+
+```{r}
+boxplot(pima[,1:8])
+var(pima$Preg)
+var(pima$Plas)
+var(pima$Pres)
+var(pima$Skin)
+var(pima$Insu)
+var(pima$Mass)
+var(pima$Pedi)
+var(pima$Age)
+```
+
+Aquí podemos tener cierto problema, ya que aunque son varianzas similares, tenemos algunas bastante distintas entre otras. Igualmente, en gran medida pueden confirmarse las premisas de LDA y aplicaremos el método normalmente. 
+
+```{r}
+lda.fit <- lda(Class~.,data=train)
+lda.fit
+plot(lda.fit, type="both")
+```
+
+Por último vamos a comprobar como funcionaría en test. 
+
+```{r}
+lda.pred <- predict(lda.fit,test)
+table(lda.pred$class,test$Class)
+mean(lda.pred$class==test$Class)
+```
+
+Hemos obtenido un valor aceptable de primeras, pero vamos a probar que pasaría si nos quedaramos solo con algunas variables predictoras, aquellas con varianza más similar. 
+
+```{r}
+lda.fit2 <- lda(Class~Pres+Skin+Insu+Mass+Pedi,data=train)
+lda.fit2
+plot(lda.fit2, type="both")
+lda.pred2 <- predict(lda.fit2,test)
+table(lda.pred2$class,test$Class)
+mean(lda.pred2$class==test$Class)
+```
+
+Parece ser que el modelo discrimina peor, constatado queda en los gráficos más similares entre si en este último caso que en el anterior. En todo caso, el modelo no empeora tanto como para haber quitado del mismo variables que parecen ser bastante relevantes, por ello, por medio de QDA vamos a intentar mejorar el resultado ya que este, no toma como premisa que las variables deban tener igual varianza en conjunción, sino que lo hace para una misma clase.  
 
 ## 5.3  QDA 
 
+Tal y como hemos dicho anteriormente, antes de aplicar QDA, comprobamos que la varianza entre cada clase sea similar. 
+
+```{r}
+
+print("Varianzas de la clase 1")
+
+
+var(pima[pima$Class == "1",]$Preg)
+var(pima[pima$Class == "1",]$Plas)
+var(pima[pima$Class == "1",]$Pres)
+var(pima[pima$Class == "1",]$Skin)
+var(pima[pima$Class == "1",]$Insu)
+var(pima[pima$Class == "1",]$Mass)
+var(pima[pima$Class == "1",]$Pedi)
+var(pima[pima$Class == "1",]$Age)
+
+print("Varianzas de la clase 0")
+
+var(pima[pima$Class == "0",]$Preg)
+var(pima[pima$Class == "0",]$Plas)
+var(pima[pima$Class == "0",]$Pres)
+var(pima[pima$Class == "0",]$Skin)
+var(pima[pima$Class == "0",]$Insu)
+var(pima[pima$Class == "0",]$Mass)
+var(pima[pima$Class == "0",]$Pedi)
+var(pima[pima$Class == "0",]$Age)
+```
+
+Podemos comprobar como las variables tienen varianza similares, con alguna discordancia pero en general similares. Por lo que todo apunta a que el método QDA funcionará de manera apropiada, y probablemente mejor que el LDA. 
+
+```{r}
+qda.fit <- qda(Class~.,data=train)
+qda.fit
+qda.pred <- predict(qda.fit,test)
+class(qda.pred)
+data.frame(qda.pred)
+table(qda.pred$class,test$Class)
+mean(qda.pred$class==test$Class)
+```
+
+Exactamente, tal y como habiamos predicho, el modelo basado en QDA ajusta mejor en nuestro problema que el LDA, ya que las varianzas entre clase, son más similares que en el conjunto del problema. 
 
 ## 5.4  Comparación entre los tres métodos
 
+En el último punto vamos a compararar  los tres métodos usados para ver cual de ellos se comporta mejor. Para ello, compararemos los métodos usando los tests de **Wilconxon, Friedman y Holm**. 
+
+
+Aunque los datos más interesantes son los de test, analizaremos también training para comprobar posibles problemas o fenómenos como sobreajustes. Tomaremos como referencia QDA que parece que nos ha dado buenos resultados. 
+
+
+```{r}
+resultadosTrain <- read.csv("./comparaciones/clasif_train_alumnos.csv")
+resultadosTest <- read.csv("./comparaciones/datos.csv")
+
+difsTrain <- (resultadosTrain[,4] - resultadosTrain[,3]) / resultadosTrain[,4]
+difsTest <- (resultadosTest[,4] - resultadosTest[,3]) / resultadosTest[,4]
+
+#Datos para train
+
+wilc_knn_ln_train <- cbind(ifelse (difsTrain<0, abs(difsTrain)+0.1, 0+0.1), ifelse (difsTrain>0, abs(difsTrain)+0.1, 0+0.1)) 
+
+colnames(wilc_knn_ln_train) <- c(colnames(resultadosTrain)[4], colnames(resultadosTrain)[3])
+head(wilc_knn_ln_train)
+
+#Datos para test
+
+wilc_knn_ln_test <- cbind(ifelse (difsTest<0, abs(difsTest)+0.1, 0+0.1), ifelse (difsTest>0, abs(difsTest)+0.1, 0+0.1)) 
+
+colnames(wilc_knn_ln_test) <- c(colnames(resultadosTest)[4], colnames(resultadosTest)[3])
+head(wilc_knn_ln_test)
+```
+
+
+Ahora podemos aplicar el test de Wilconxon. Para ello procedemos de la siguiente manera:
+
+
+```{r}
+QDAvsLDAtra <- wilcox.test(wilc_knn_ln_train[,1], wilc_knn_ln_train[,2], alternative = "two.sided", paired=TRUE) 
+QDAvsLDAtst <- wilcox.test(wilc_knn_ln_test[,1], wilc_knn_ln_test[,2], alternative = "two.sided", paired=TRUE) 
+
+RmasTest <- QDAvsLDAtst$statistic
+pvalueTest <- QDAvsLDAtst$p.value
+
+RmasTra <- QDAvsLDAtra$statistic
+pvalueTra <- QDAvsLDAtra$p.value
+
+QDAvsLDAtra <- wilcox.test(wilc_knn_ln_train[,2], wilc_knn_ln_train[,1], alternative = "two.sided", paired=TRUE) 
+QDAvsLDAtst <- wilcox.test(wilc_knn_ln_test[,2], wilc_knn_ln_test[,1], alternative = "two.sided", paired=TRUE) 
+
+RmenosTest <- QDAvsLDAtst$statistic
+RmenosTra <-  QDAvsLDAtra$statistic
+
+print("Resultados en Test:")
+RmasTest
+RmenosTest
+pvalueTest
+
+print("Resultados en Training:")
+RmasTra
+RmenosTra
+pvalueTra
+```
+
+En test podriamos asegurar que no tenemos diferencias entre los algoritmos, frente a que en training a un 85% de seguridad podriamos concluir que son distintos. 
+
+Vamos a comprar ahora los tres algoritmos usando el test de **Friedman**.
+
+```{r}
+test_friedmanTra <- friedman.test(as.matrix(resultadosTrain[,1:3]))
+test_friedmanTst <- friedman.test(as.matrix(resultadosTest[,1:3]))
+test_friedmanTra
+test_friedmanTst
+```
+
+
+Acorde al test de Friedman, y los valores de p-value observados cercanos a 0 tanto en training como en test, podemos concluir que existen diferencias , al menos, entre dos algoritmos de los tres estudiados. En base a esta premisa, usaremos el test de **Holm** para discernir que está ocurriendo con estos algoritmos. 
+
+
+
+```{r}
+tam <- dim(resultadosTest[,1:3])
+groups <- rep(1:tam[2], each=tam[1])
+pairwise.wilcox.test(as.matrix(resultadosTest[,2:4]), groups, p.adjust = "holm", paired = TRUE)
+
+tam <- dim(resultadosTrain[,1:3])
+groups <- rep(1:tam[2], each=tam[1])
+pairwise.wilcox.test(as.matrix(resultadosTrain[,2:4]), groups, p.adjust = "holm", paired = TRUE)
+```
+
+Los valores de P-Value tan altos, no aclaran que algoritmo funcionará mejor que otro y aunque se decantan en parte por el QDA (sin ser datos estadisticamente significativos), estos datos varian mucho en training y test, problema que puede ser debido a posibles sobreajustes en el proceso de entrenamiento. 
 
 
 

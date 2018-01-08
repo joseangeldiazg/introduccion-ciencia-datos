@@ -1,0 +1,18 @@
+---
+title: "Introduccion a la Ciencia de Datos"
+author: "joseangeldiazg"
+date: "08/01/2018"
+output: html_document
+---
+
+## Información sobre el sitio
+
+Esta web ha sido creada para almacenar todo lo referente al trabajo final de la asignatura Introduccion a la Ciencia de Datos. 
+
+## Contenido.
+
+En la web hay dos tres supuestos prácticos:
+
+- Análisis exploratorio de datos para el data set Pima y Autompg8.
+- Estudio de Regresión con el dataset Autompg8.
+- Estudio de Clasificación con el dataset Pima. 
