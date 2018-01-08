@@ -309,9 +309,17 @@ pairwise.wilcox.test(as.matrix(resultadosTrain[,1:3]), groups, p.adjust = "holm"
 ```
 
 
-En base a los datos de test, parece que el algorimo M5, es ciertamente mejor que los demás, aunque los resultados no son muy concluyebtes. Por otro lado, en base a los resultados de training, podemos comprar que el algoritmo M5 es mejor que el LM y KNN con pvalues de 0.0039, y 0.0067 frente a estos y que a su mismo tiempo, el algoritmo KNN está por delante del LM, con un valor de p-value de 0.0067.
+En base a los datos de test, parece que el algorimo M5, es ciertamente mejor que los demás, aunque los resultados no son  concuyentes. Por otro lado, en base a los resultados de training, podemos comprar que el algoritmo M5 es mejor que el LM y KNN con pvalues de 0.0039, y 0.0067 frente a estos y que a su mismo tiempo, el algoritmo KNN está por delante del LM, con un valor de p-value de 0.0067.
 
 
 ## 6.5 Resumen y conclusiones finales de los modelos de regresión. 
+
+El estudio del dataset autompg8 para regresión, nos ha ayudado a comprender la potencia de los métodos de regresión, tanto para predecir valores en nuestras variables objetivos como para ayuda en los procesos de análisis exploratorio de datos, donde los algoritmos basados en regresiones lineales simples y combinadas nos ayudan a comprender aún mejor las distribuciones de las variables y la posibles interacciones entre las mismas. 
+
+Cabe destacar, la potencia del método en su uso por ejemplo para predecir valores perdidos en una variable en la cual hubiera presencia de estos y algún tipo de correlación con alguna de las otras variables presentes en el problema. 
+
+Por último, pese a que no hemos ahondado mucho en las interacciones y la no linealidad, queda constatado como estudiar los datos y comprobar que tipo de función se adapta mejor a  los mismos, nos ayudará a obtener mejores modelos, en este caso, con una simple función cuadrática hemos conseguido valores de R cuadrado de prácticamente el 90% de acierto.  
+
+
 
 
